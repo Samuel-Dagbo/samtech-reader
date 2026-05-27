@@ -57,13 +57,14 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
               </Badge>
             )}
             {hasProgress && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 via-background/60 to-transparent px-3 py-2.5">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-medium text-foreground/80">{Math.round(progress)}%</span>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent px-3 pt-6 pb-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] font-semibold text-foreground">{Math.round(progress)}% complete</span>
+                  <span className="text-[10px] text-muted-foreground">{progress >= 100 ? "Finished" : "In progress"}</span>
                 </div>
-                <div className="h-1 bg-background/30 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-background/30 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-700"
                     style={{ width: `${Math.round(progress)}%` }}
                   />
                 </div>
@@ -92,6 +93,9 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
                   {book.readingTime} min
                 </span>
               </div>
+              {hasProgress && (
+                <span className="font-medium text-primary">{Math.round(progress)}%</span>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -103,8 +103,12 @@ export function ReaderView({ data }: ReaderViewProps) {
   const currentChapter = chapters[currentChapterIndex];
   const totalChapters = chapters.length;
 
-  const saveProgress = useCallback(async (chapterIdx: number, scrollPos: number, pct: number) => {
+  const saveProgress = useCallback(async (chapterIdx: number, scrollPos: number, chapterPct: number, overallPctVal?: number) => {
     if (!session?.user?.id) return;
+
+    const overall = overallPctVal ?? (totalChapters > 0
+      ? Math.round((chapterIdx / totalChapters) * 100 + chapterPct / totalChapters)
+      : chapterPct);
 
     try {
       await fetch("/api/progress", {
@@ -114,11 +118,11 @@ export function ReaderView({ data }: ReaderViewProps) {
           bookId,
           currentChapter: chapters[chapterIdx]?.chapterNumber || 1,
           scrollPosition: scrollPos,
-          percentage: pct,
+          percentage: overall,
         }),
       });
     } catch { }
-  }, [bookId, chapters, session]);
+  }, [bookId, chapters, session, totalChapters]);
 
   // Auto-hide header on scroll
   useEffect(() => {
@@ -147,19 +151,23 @@ export function ReaderView({ data }: ReaderViewProps) {
       if (!containerRef.current) return;
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
       const maxScroll = scrollHeight - clientHeight;
-      const pct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
-      setPercentage(pct);
+      const chapterPct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
+      setPercentage(chapterPct);
+
+      const overall = totalChapters > 0
+        ? Math.round((currentChapterIndex / totalChapters) * 100 + chapterPct / totalChapters)
+        : chapterPct;
 
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
-        saveProgress(currentChapterIndex, scrollTop, pct);
+        saveProgress(currentChapterIndex, scrollTop, chapterPct, overall);
       }, 2000);
     };
 
     const el = containerRef.current;
     el?.addEventListener("scroll", handleScroll);
     return () => el?.removeEventListener("scroll", handleScroll);
-  }, [currentChapter, currentChapterIndex, saveProgress]);
+  }, [currentChapter, currentChapterIndex, saveProgress, totalChapters]);
 
   // Save on page unload using sendBeacon for reliability
   useEffect(() => {
@@ -167,14 +175,18 @@ export function ReaderView({ data }: ReaderViewProps) {
       if (!containerRef.current || !session?.user?.id) return;
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
       const maxScroll = scrollHeight - clientHeight;
-      const pct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
+      const chapterPct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
+
+      const overall = totalChapters > 0
+        ? Math.round((currentChapterIndex / totalChapters) * 100 + chapterPct / totalChapters)
+        : chapterPct;
 
       const payload = new Blob(
         [JSON.stringify({
           bookId,
           currentChapter: currentChapter?.chapterNumber || 1,
           scrollPosition: scrollTop,
-          percentage: pct,
+          percentage: overall,
         })],
         { type: "application/json" }
       );
@@ -183,7 +195,7 @@ export function ReaderView({ data }: ReaderViewProps) {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentChapter, currentChapterIndex, session, bookId]);
+  }, [currentChapter, currentChapterIndex, session, bookId, totalChapters]);
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -198,8 +210,10 @@ export function ReaderView({ data }: ReaderViewProps) {
     setShowToc(false);
     if (containerRef.current) containerRef.current.scrollTop = 0;
 
-    // Save progress immediately on chapter switch
-    saveProgress(index, 0, 0);
+    const overall = totalChapters > 0
+      ? Math.round((index / totalChapters) * 100)
+      : 0;
+    saveProgress(index, 0, 0, overall);
   }
 
   // Keyboard shortcut for search
@@ -276,9 +290,12 @@ export function ReaderView({ data }: ReaderViewProps) {
       .join("");
   }
 
-  const overallPct = totalChapters > 0
-    ? Math.round(((currentChapterIndex) / totalChapters) * 100 + percentage / totalChapters)
-    : 0;
+  const overallPct = useMemo(() =>
+    totalChapters > 0
+      ? Math.round(((currentChapterIndex) / totalChapters) * 100 + percentage / totalChapters)
+      : 0,
+    [currentChapterIndex, totalChapters, percentage]
+  );
 
   const isFirst = currentChapterIndex === 0;
   const isLast = currentChapterIndex === totalChapters - 1;
