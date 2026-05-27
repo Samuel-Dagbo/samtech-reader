@@ -37,10 +37,17 @@ export function BookForm() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const router = useRouter();
 
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!pdfFile) {
       toast.error("Please select a PDF file");
+      return;
+    }
+
+    if (pdfFile.size > MAX_FILE_SIZE) {
+      toast.error(`File too large (${(pdfFile.size / 1024 / 1024).toFixed(1)}MB). Maximum size is 50MB.`);
       return;
     }
 
@@ -72,7 +79,15 @@ export function BookForm() {
       router.refresh();
     } catch (err: unknown) {
       toast.dismiss();
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      // Give actionable guidance for Cloudinary size limits
+      if (msg.includes("File size too large") || msg.includes("max")) {
+        toast.error(
+          "Upload rejected by Cloudinary storage. Go to Cloudinary Dashboard → Settings → Upload → 'samtech_reader_books' preset and increase the max file size to 50MB."
+        );
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
