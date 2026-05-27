@@ -59,8 +59,8 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
             {hasProgress && (
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent px-3 pt-6 pb-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-semibold text-foreground">{Math.round(progress)}% complete</span>
-                  <span className="text-[10px] text-muted-foreground">{progress >= 100 ? "Finished" : "In progress"}</span>
+                  <span className="text-[11px] font-semibold text-foreground">{Math.round(progress)}%</span>
+                  <span className="text-[10px] text-muted-foreground">{progress >= 100 ? "Finished" : "Reading"}</span>
                 </div>
                 <div className="h-1.5 bg-background/30 rounded-full overflow-hidden">
                   <div
@@ -82,20 +82,30 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
             <p className="text-sm text-muted-foreground/70 line-clamp-2 mt-2 leading-relaxed">
               {book.description}
             </p>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50 text-xs text-muted-foreground">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
+            {/* Progress bar — always visible */}
+            <div className="mt-3 pt-3 border-t border-border/50">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <BookOpen className="h-3 w-3" />
-                  {book.totalChapters} ch
-                </span>
-                <span className="flex items-center gap-1">
+                  <span>{book.totalChapters} chapters</span>
+                  <span className="mx-1.5">&middot;</span>
                   <Clock className="h-3 w-3" />
-                  {book.readingTime} min
+                  <span>{book.readingTime} min</span>
+                </div>
+                <span className={`text-xs font-medium ${hasProgress ? "text-primary" : "text-muted-foreground/50"}`}>
+                  {hasProgress ? `${Math.round(progress)}%` : "Not started"}
                 </span>
               </div>
-              {hasProgress && (
-                <span className="font-medium text-primary">{Math.round(progress)}%</span>
-              )}
+              <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    hasProgress
+                      ? "bg-gradient-to-r from-primary/70 to-primary"
+                      : "bg-transparent"
+                  }`}
+                  style={{ width: hasProgress ? `${Math.round(progress)}%` : "0%" }}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
