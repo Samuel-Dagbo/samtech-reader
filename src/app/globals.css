@@ -177,6 +177,81 @@
   filter: blur(60px);
 }
 
+.glass-card {
+  background: color-mix(in oklch, var(--color-background) 70%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in oklch, var(--color-border) 50%, transparent);
+}
+
+.page-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-border) 50%, transparent);
+}
+
+.page-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.page-header p {
+  color: var(--color-muted-foreground);
+  margin-top: 0.25rem;
+}
+
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px color-mix(in oklch, var(--color-primary) 10%, transparent);
+}
+
+.nav-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-primary);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-state svg {
+  height: 2.5rem;
+  width: 2.5rem;
+  color: var(--color-muted-foreground);
+  opacity: 0.5;
+  margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+  color: var(--color-muted-foreground);
+  font-size: 0.875rem;
+}
+
 .bento-card {
   position: relative;
   overflow: hidden;

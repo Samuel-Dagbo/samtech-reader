@@ -29,32 +29,41 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
       <Link href={`/books/${book._id}`}>
-        <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50 h-full">
-          <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 relative overflow-hidden">
+        <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 h-full">
+          <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 relative overflow-hidden">
             {book.coverImage ? (
-              <img
-                src={book.coverImage}
-                alt={book.title}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
+              <>
+                <img
+                  src={book.coverImage}
+                  alt={book.title}
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <BookOpen className="h-16 w-16 text-primary/30" />
+                <div className="text-center">
+                  <BookOpen className="h-12 w-12 text-primary/20 mx-auto mb-2" />
+                  <p className="text-xs text-primary/20 font-medium">No Cover</p>
+                </div>
               </div>
             )}
             {book.genre && (
-              <Badge className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm">
+              <Badge className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm border-0 shadow-sm">
                 {book.genre}
               </Badge>
             )}
             {hasProgress && (
-              <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm px-3 py-1.5">
-                <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 via-background/60 to-transparent px-3 py-2.5">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-medium text-foreground/80">{Math.round(progress)}%</span>
+                </div>
+                <div className="h-1 bg-background/30 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all"
+                    className="h-full bg-primary rounded-full transition-all duration-500"
                     style={{ width: `${Math.round(progress)}%` }}
                   />
                 </div>
@@ -66,13 +75,13 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
               {book.title}
             </h3>
             <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
-              <User className="h-3 w-3" />
+              <User className="h-3 w-3 shrink-0" />
               <span className="line-clamp-1">{book.author}</span>
             </div>
-            <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+            <p className="text-sm text-muted-foreground/70 line-clamp-2 mt-2 leading-relaxed">
               {book.description}
             </p>
-            <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50 text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
                   <BookOpen className="h-3 w-3" />
@@ -83,9 +92,6 @@ export function BookCard({ book, index = 0 }: BookCardProps) {
                   {book.readingTime} min
                 </span>
               </div>
-              {hasProgress && (
-                <span className="text-primary font-medium">{Math.round(progress)}%</span>
-              )}
             </div>
           </CardContent>
         </Card>

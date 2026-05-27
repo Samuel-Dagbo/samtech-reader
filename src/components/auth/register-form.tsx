@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import toast from "react-hot-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 export function RegisterForm() {
@@ -47,35 +47,42 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Create an account</CardTitle>
-        <CardDescription>Enter your information to get started</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" name="name" placeholder="John Doe" required />
+    <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10">
+            <BookOpen className="h-6 w-6 text-primary" />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" placeholder="you@example.com" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" placeholder="••••••••" required minLength={6} />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {loading ? "Creating account..." : "Create account"}
-          </Button>
-        </form>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
+          <p className="text-sm text-muted-foreground mt-1">Start your reading journey</p>
+        </div>
+        <Card className="border-border/60 shadow-lg">
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" name="name" placeholder="John Doe" required className="h-11" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" placeholder="you@example.com" required className="h-11" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" placeholder="••••••••" required minLength={6} className="h-11" />
+              </div>
+              <Button type="submit" className="w-full h-11 shadow-sm" disabled={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {loading ? "Creating account..." : "Create account"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">Sign in</Link>
+          <Link href="/login" className="text-primary font-medium hover:text-primary/80 transition-colors">Sign in</Link>
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
