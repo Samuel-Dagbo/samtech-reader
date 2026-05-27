@@ -74,9 +74,12 @@ export function ReaderView({ data }: ReaderViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSearchIdx, setCurrentSearchIdx] = useState(0);
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [showResumeBadge, setShowResumeBadge] = useState(false);
+  const [markerOffset, setMarkerOffset] = useState<number | null>(null);
   const lastScrollY = useRef(0);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initialScrollRestored = useRef(false);
+  const markerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const bookId = data.book._id;
@@ -87,15 +90,22 @@ export function ReaderView({ data }: ReaderViewProps) {
     localStorage.setItem("samtech-font-size", String(fontSize));
   }, [fontSize]);
 
-  // Restore saved scroll position after content renders
+  // Restore saved scroll position and show visual marker
   useEffect(() => {
     const savedScroll = data.progress?.scrollPosition;
     if (savedScroll && containerRef.current) {
+      setMarkerOffset(savedScroll);
+      setShowResumeBadge(true);
+
       setTimeout(() => {
         if (containerRef.current) {
           containerRef.current.scrollTop = savedScroll;
         }
+        // Fade marker after 6s
+        setTimeout(() => setMarkerOffset(null), 6000);
       }, 100);
+      // Hide badge after 3.5s
+      setTimeout(() => setShowResumeBadge(false), 3500);
     }
     initialScrollRestored.current = true;
   }, [data.progress?.scrollPosition]);
@@ -473,12 +483,40 @@ export function ReaderView({ data }: ReaderViewProps) {
           </div>
         )}
 
+        {/* Resume badge */}
+        {showResumeBadge && (
+          <div className="fixed top-20 right-4 z-50 animate-fade-in">
+            <div className="flex items-center gap-2 rounded-xl border bg-background/90 backdrop-blur-xl px-4 py-2.5 shadow-lg">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              </span>
+              <span className="text-sm font-medium">Resumed from last position</span>
+            </div>
+          </div>
+        )}
+
         {/* Reading area */}
         <div
           ref={containerRef}
-          className="flex-1 overflow-y-auto outline-none"
+          className="flex-1 overflow-y-auto outline-none relative"
           tabIndex={0}
         >
+          {/* Scroll position marker */}
+          {markerOffset !== null && (
+            <div
+              ref={markerRef}
+              className="absolute left-0 right-0 pointer-events-none z-10 transition-opacity duration-700"
+              style={{ top: markerOffset }}
+            >
+              <div className="flex items-center">
+                <div className="h-8 w-1 rounded-full bg-primary/50 ml-2 sm:ml-4" />
+                <div className="h-px flex-1 bg-gradient-to-r from-primary/20 to-transparent ml-3" />
+              </div>
+              <div className="absolute -left-1 top-2 h-4 w-4 rounded-full bg-primary/30 blur-sm" />
+            </div>
+          )}
+
           <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12">
             <div className="mb-6 sm:mb-8 text-center">
               <h1 className="text-xl sm:text-2xl font-bold">{currentChapter.title}</h1>
