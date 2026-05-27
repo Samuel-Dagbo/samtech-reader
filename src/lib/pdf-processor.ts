@@ -1,9 +1,4 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
+import { PDFParse } from "pdf-parse";
 
 export interface ChapterData {
   chapterNumber: number;
@@ -39,16 +34,16 @@ function detectChapterTitle(line: string): boolean {
   return patterns.some((p) => p.test(line.trim()));
 }
 
-export async function parsePdfText(pdfPath: string): Promise<{
+export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   fullText: string;
   chapters: ChapterData[];
   totalWords: number;
 }> {
-  const pdfParse = require("pdf-parse");
-  const dataBuffer = fs.readFileSync(pdfPath);
-  const data = await pdfParse(dataBuffer);
+  const parser = new PDFParse({ data: new Uint8Array(pdfBuffer) });
+  const result = await parser.getText();
+  const rawText = typeof result.text === "string" ? result.text : "";
 
-  const cleanedText = cleanText(data.text);
+  const cleanedText = cleanText(rawText);
   const lines = cleanedText.split("\n").filter((l) => l.trim());
 
   const chapters: ChapterData[] = [];
@@ -101,26 +96,11 @@ export async function parsePdfText(pdfPath: string): Promise<{
     }
   }
 
+  parser.destroy();
+
   return {
     fullText: cleanedText,
     chapters,
     totalWords: cleanedText.split(/\s+/).length,
   };
-}
-
-export async function downloadPdf(url: string): Promise<string> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to download PDF: ${response.statusText}`);
-
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const tmpDir = os.tmpdir();
-  const tmpPath = path.join(tmpDir, `samtech-pdf-${Date.now()}.pdf`);
-  fs.writeFileSync(tmpPath, buffer);
-  return tmpPath;
-}
-
-export function cleanupTempFile(filePath: string) {
-  try {
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  } catch { }
 }

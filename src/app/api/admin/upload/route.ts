@@ -4,12 +4,10 @@ import dbConnect from "@/lib/db";
 import Book from "@/models/Book";
 import Chapter from "@/models/Chapter";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-import { parsePdfText, downloadPdf, cleanupTempFile } from "@/lib/pdf-processor";
+import { parsePdfBuffer } from "@/lib/pdf-processor";
 import { calculateReadingTime } from "@/lib/utils";
 
 export async function POST(req: Request) {
-  let tmpPath: string | null = null;
-
   try {
     const session = await auth();
     if (!session?.user?.id || session.user.role !== "admin") {
@@ -31,7 +29,11 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
-    const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
+    // Convert PDF to buffer for parsing (no temp files needed)
+    const pdfArrayBuffer = await pdfFile.arrayBuffer();
+    const pdfBuffer = Buffer.from(pdfArrayBuffer);
+
+    // Upload PDF to Cloudinary
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfDataUri = `data:application/pdf;base64,${pdfBase64}`;
 
@@ -40,6 +42,7 @@ export async function POST(req: Request) {
       resource_type: "raw",
     });
 
+    // Upload cover image if provided
     let coverImage = "";
     if (coverFile) {
       const coverBuffer = Buffer.from(await coverFile.arrayBuffer());
@@ -52,10 +55,8 @@ export async function POST(req: Request) {
       coverImage = coverUpload.secure_url;
     }
 
-    tmpPath = await downloadPdf(pdfUpload.secure_url);
-    const { chapters, totalWords } = await parsePdfText(tmpPath);
-    cleanupTempFile(tmpPath);
-    tmpPath = null;
+    // Parse PDF directly from buffer (no temp file, no re-download)
+    const { chapters, totalWords } = await parsePdfBuffer(pdfBuffer);
 
     const readingTime = calculateReadingTime(chapters.map((c) => c.content).join(" "));
 
@@ -89,8 +90,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    if (tmpPath) cleanupTempFile(tmpPath);
     console.error("Upload error:", error);
-    return NextResponse.json({ error: "Failed to process book" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to process book" },
+      { status: 500 }
+    );
   }
 }

@@ -4,7 +4,10 @@
       "Bash(npm run:*)",
       "Bash(npm ls:*)",
       "Bash(npm install:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(node -e \"import\\(''pdf-parse''\\).then\\(m => console.log\\(''pdf-parse loaded, keys:'', Object.keys\\(m\\)\\)\\).catch\\(e => console.error\\(''ERROR:'', e.message\\)\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(taskkill /F /IM node.exe)"
     ]
   }
 }
