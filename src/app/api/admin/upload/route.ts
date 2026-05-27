@@ -137,6 +137,7 @@ export async function POST(req: Request) {
       genre,
       tags,
       coverImage,
+      cloudinaryCoverId: uploadedCoverId,
       pdfUrl: pdfSecureUrl,
       cloudinaryPdfId: pdfPublicId,
       totalChapters: chapters.length,

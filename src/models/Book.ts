@@ -5,6 +5,7 @@ export interface IBookDocument extends mongoose.Document {
   description: string;
   author: string;
   coverImage: string;
+  cloudinaryCoverId: string;
   pdfUrl: string;
   cloudinaryPdfId: string;
   genre?: string;
@@ -23,6 +24,7 @@ const bookSchema = new mongoose.Schema<IBookDocument>(
     description: { type: String, required: true },
     author: { type: String, required: true },
     coverImage: { type: String, default: "" },
+    cloudinaryCoverId: { type: String },
     pdfUrl: { type: String, required: true },
     cloudinaryPdfId: { type: String },
     genre: { type: String },

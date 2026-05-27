@@ -14,13 +14,22 @@ export default async function EditBookPage({ params }: { params: Promise<{ id: s
   const book = await Book.findById(id).lean();
   if (!book) notFound();
 
+  const serialized = {
+    _id: String(book._id),
+    title: book.title,
+    author: book.author,
+    description: book.description,
+    genre: book.genre || "",
+    tags: book.tags || "",
+    coverImage: book.coverImage || "",
+    totalChapters: book.totalChapters,
+    totalPages: book.totalPages,
+    readingTime: book.readingTime,
+  };
+
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Edit Book</h1>
-        <p className="text-muted-foreground mt-1">Update book details</p>
-      </div>
-      <EditBookForm book={JSON.parse(JSON.stringify(book))} />
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
+      <EditBookForm book={serialized} />
     </div>
   );
 }
