@@ -17,9 +17,10 @@ import {
   Smartphone,
   RefreshCw,
   CheckCircle,
-  Quote,
   Layers,
   Zap,
+  FileText,
+  Heart,
 } from "lucide-react";
 import { HeroAnimation, StaggerFade, FadeUp } from "@/components/hero-animation";
 
@@ -63,27 +64,11 @@ export default async function HomePage() {
         <div className="hero-glow" />
         <div className="mesh-gradient absolute inset-0" />
         <div className="grid-pattern absolute inset-0 opacity-[0.12]" />
-        {/* Floating Orbs */}
         <div className="floating-orb w-72 h-72 top-[-5%] left-[-5%] bg-primary/10 animate-pulse-glow" />
         <div className="floating-orb w-96 h-96 bottom-[-10%] right-[-8%] bg-[oklch(0.6_0.18_265)]/8 animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-        {/* Decorative dots */}
-        <div className="absolute top-20 right-[15%] hidden lg:block">
-          <div className="grid grid-cols-3 gap-3 opacity-20">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className="h-1.5 w-1.5 rounded-full bg-primary" />
-            ))}
-          </div>
-        </div>
-        <div className="absolute bottom-32 left-[8%] hidden lg:block">
-          <div className="grid grid-cols-4 gap-2.5 opacity-15">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="h-1 w-1 rounded-full bg-primary" />
-            ))}
-          </div>
-        </div>
         <HeroAnimation>
           <div className="relative mx-auto max-w-6xl">
-            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-24">
               {/* Left: Text */}
               <div className="flex-1 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 rounded-full border bg-background/50 px-4 py-1.5 text-sm mb-8 backdrop-blur-xl shadow-sm">
@@ -121,7 +106,6 @@ export default async function HomePage() {
                     </Button>
                   </Link>
                 </div>
-                {/* Trusted by line */}
                 <div className="mt-12 flex items-center justify-center lg:justify-start gap-6 text-xs text-muted-foreground">
                   <div className="flex -space-x-2">
                     {["A", "B", "C", "D", "E"].map((letter, i) => (
@@ -137,29 +121,80 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              {/* Right: Book Mockup + Device Indicators */}
-              <div className="shrink-0 hidden lg:flex flex-col items-center">
-                <div className="book-mockup animate-float">
-                  <div className="book-mockup-spine" />
-                  <div className="book-mockup-inner" />
-                  <div className="absolute -top-4 -right-4 w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/10 backdrop-blur-xl flex items-center justify-center">
-                    <BookMarked className="h-6 w-6 text-primary/60" />
+              {/* Right: Reader Mockup */}
+              <div className="shrink-0 hidden lg:block w-[400px]">
+                <div className="reader-frame p-1 animate-float">
+                  <div className="reader-notch" />
+                  {/* Screen header */}
+                  <div className="flex items-center gap-2 px-5 pt-6 pb-3">
+                    <div className="flex gap-1.5">
+                      <div className="h-2.5 w-2.5 rounded-full bg-red-400/50" />
+                      <div className="h-2.5 w-2.5 rounded-full bg-yellow-400/50" />
+                      <div className="h-2.5 w-2.5 rounded-full bg-green-400/50" />
+                    </div>
+                    <div className="ml-3 flex items-center gap-2 text-[11px] text-white/40 font-medium tracking-wide">
+                      <BookOpen className="h-3 w-3" /> SamTech Reader
+                    </div>
                   </div>
-                  {/* Sync indicator */}
-                  <div className="absolute -bottom-3 -left-3 flex items-center gap-2 rounded-xl border bg-background/80 backdrop-blur-xl px-3 py-2 shadow-lg animate-float-delayed">
-                    <RefreshCw className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-[11px] font-medium">Auto-sync</span>
+                  {/* Book content */}
+                  <div className="px-5 pb-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Badge className="bg-primary/20 text-primary text-[10px] px-2 py-0 font-medium border-0">
+                        Chapter 7
+                      </Badge>
+                      <span className="text-[11px] text-white/30">The Dawn of Understanding</span>
+                    </div>
+                    <div className="space-y-2.5 reader-text">
+                      <p className="text-[13px] text-white/80 leading-relaxed">
+                        The morning light streamed through the tall windows, casting long
+                        shadows across the polished wooden floor. She sat by the window, the
+                        book open in her lap, her eyes tracing the words with quiet intention.
+                      </p>
+                      <p className="text-[13px] text-white/60 leading-relaxed">
+                        Each page turned felt like stepping into a new world, the weight of
+                        the paper and the smell of ink grounding her in the present moment.
+                        She had been reading for hours, yet the time had passed unnoticed.
+                      </p>
+                      <p className="text-[13px] text-white/50 leading-relaxed">
+                        The chapter drew to a close, the final paragraphs weaving together
+                        threads of thought she hadn&rsquo;t realized were connected. She
+                        placed a bookmark between the pages and closed the book gently.
+                      </p>
+                    </div>
+                    {/* Progress */}
+                    <div className="mt-5 pt-4 border-t border-white/10">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] text-white/40">Reading progress</span>
+                        <span className="text-[11px] text-primary font-medium">72%</span>
+                      </div>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full w-[72%] bg-gradient-to-r from-primary/60 to-primary rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Sync badge */}
+                  <div className="absolute -top-3 -right-3 flex items-center gap-1.5 rounded-full border border-white/10 bg-background/90 backdrop-blur-xl px-3 py-1.5 shadow-lg">
+                    <RefreshCw className="h-3 w-3 text-primary" />
+                    <span className="text-[10px] font-medium text-foreground/80">Auto-sync</span>
                   </div>
                 </div>
-                {/* Device icons */}
-                <div className="mt-8 flex items-center gap-6 text-muted-foreground/40">
-                  <Monitor className="h-5 w-5" />
-                  <div className="h-px w-8 bg-border" />
-                  <Smartphone className="h-5 w-5" />
-                  <div className="h-px w-8 bg-border" />
-                  <BookOpen className="h-5 w-5" />
+                {/* Device labels */}
+                <div className="mt-6 flex items-center justify-center gap-5 text-muted-foreground/40">
+                  <div className="flex items-center gap-2">
+                    <Monitor className="h-4 w-4" />
+                    <span className="text-xs">Desktop</span>
+                  </div>
+                  <div className="h-3 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="h-4 w-4" />
+                    <span className="text-xs">Phone</span>
+                  </div>
+                  <div className="h-3 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <TabletIcon className="h-4 w-4" />
+                    <span className="text-xs">Tablet</span>
+                  </div>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground/50">All devices. One place.</p>
               </div>
             </div>
           </div>
@@ -265,84 +300,148 @@ export default async function HomePage() {
             </div>
           </FadeUp>
 
-          <StaggerFade className="grid gap-6 lg:grid-cols-2">
-            {/* Sync visual card */}
+          <StaggerFade className="grid gap-8 lg:grid-cols-2">
+            {/* Sync visual - two reader cards side by side */}
             <FadeUp>
-              <div className="bento-card rounded-2xl border p-8 bg-background/80 backdrop-blur-sm h-full">
+              <Card className="bento-card h-full border overflow-hidden">
                 <div className="bento-card-shine" />
-                <div className="relative z-10">
+                <CardContent className="p-6 relative z-10">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                      <RefreshCw className="h-6 w-6 text-primary" />
+                      <Smartphone className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">Cross-Device Sync</h3>
-                      <p className="text-sm text-muted-foreground">Real-time cloud synchronization</p>
+                      <h3 className="font-semibold text-lg">Phone &bull; Chapter 7</h3>
+                      <p className="text-sm text-muted-foreground">Last read 2 min ago</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Laptop */}
-                    <div className="device-mockup p-4 pt-9">
-                      <Monitor className="h-6 w-6 text-primary/40 mb-2" />
-                      <div className="h-2 w-3/4 rounded bg-primary/10 mb-1" />
-                      <div className="flex items-center gap-1.5 text-[10px] text-primary font-medium">
-                        <CheckCircle className="h-3 w-3" /> Chapter 12
+                  <div className="reader-frame-light rounded-xl overflow-hidden">
+                    <div className="px-4 pt-4 pb-3">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge className="bg-primary/10 text-primary text-[10px] px-2 py-0 font-medium border-0">
+                          Chapter 7
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground/50">The Dawn of Understanding</span>
                       </div>
-                    </div>
-                    {/* Phone */}
-                    <div className="device-mockup p-4 pt-9">
-                      <Smartphone className="h-6 w-6 text-primary/40 mb-2" />
-                      <div className="h-2 w-3/4 rounded bg-primary/10 mb-1" />
-                      <div className="flex items-center gap-1.5 text-[10px] text-primary font-medium">
-                        <CheckCircle className="h-3 w-3" /> Chapter 12
-                      </div>
-                    </div>
-                    {/* Tablet */}
-                    <div className="device-mockup p-4 pt-9">
-                      <BookOpen className="h-6 w-6 text-primary/40 mb-2" />
-                      <div className="h-2 w-3/4 rounded bg-primary/10 mb-1" />
-                      <div className="flex items-center gap-1.5 text-[10px] text-primary font-medium">
-                        <CheckCircle className="h-3 w-3" /> Chapter 12
-                      </div>
-                    </div>
-                    {/* Cloud */}
-                    <div className="device-mockup p-4 pt-9">
-                      <Cloud className="h-6 w-6 text-primary/40 mb-2" />
-                      <div className="h-2 w-3/4 rounded bg-primary/10 mb-1" />
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        <RefreshCw className="h-3 w-3" /> Synced
+                      <p className="text-xs text-muted-foreground/80 leading-relaxed line-clamp-4">
+                        The morning light streamed through the tall windows, casting long
+                        shadows across the polished wooden floor. She sat by the window, the
+                        book open in her lap, her eyes tracing the words with quiet intention.
+                      </p>
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden mr-3">
+                          <div className="h-full w-[72%] bg-primary rounded-full" />
+                        </div>
+                        <span className="text-[10px] font-medium text-primary">72%</span>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </FadeUp>
 
-            {/* Feature list card */}
             <FadeUp>
-              <div className="bento-card rounded-2xl border p-8 bg-background/80 backdrop-blur-sm h-full">
+              <Card className="bento-card h-full border overflow-hidden">
                 <div className="bento-card-shine" />
-                <div className="relative z-10 space-y-8">
-                  {syncFeatures.map((feature, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        {feature.icon}
+                <CardContent className="p-6 relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                      <Monitor className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">Desktop &bull; Chapter 7</h3>
+                      <p className="text-sm text-muted-foreground">Synced from phone</p>
+                    </div>
+                  </div>
+                  <div className="reader-frame-light rounded-xl overflow-hidden">
+                    <div className="px-4 pt-4 pb-3">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge className="bg-primary/10 text-primary text-[10px] px-2 py-0 font-medium border-0">
+                          Chapter 7
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground/50">The Dawn of Understanding</span>
                       </div>
-                      <div>
-                        <h4 className="font-medium mb-1">{feature.title}</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                      <p className="text-xs text-muted-foreground/80 leading-relaxed line-clamp-4">
+                        The morning light streamed through the tall windows, casting long
+                        shadows across the polished wooden floor. She sat by the window, the
+                        book open in her lap, her eyes tracing the words with quiet intention.
+                      </p>
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden mr-3">
+                          <div className="h-full w-[72%] bg-primary rounded-full" />
+                        </div>
+                        <span className="text-[10px] font-medium text-primary">72%</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                </CardContent>
+              </Card>
             </FadeUp>
+          </StaggerFade>
+
+          {/* Sync features row */}
+          <StaggerFade className="grid gap-4 mt-8 md:grid-cols-3">
+            {syncFeatures.map((feature, i) => (
+              <FadeUp key={i}>
+                <Card className="border-0 bg-background/40 backdrop-blur-sm">
+                  <CardContent className="p-5 flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium mb-0.5">{feature.title}</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </FadeUp>
+            ))}
+          </StaggerFade>
+        </div>
+      </section>
+
+      {/* ─── FEATURES GRID ─── */}
+      <section className="px-4 py-24">
+        <div className="mx-auto max-w-6xl">
+          <FadeUp>
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">Everything You Need</h2>
+            <p className="text-center text-muted-foreground mb-16 max-w-xl mx-auto text-lg">
+              Powerful features designed for serious readers
+            </p>
+          </FadeUp>
+          <StaggerFade className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, i) => (
+              <FadeUp key={i}>
+                <Card
+                  className={`bento-card h-full border overflow-hidden group ${feature.featured ? "md:col-span-2 lg:col-span-3" : ""}`}
+                >
+                  <div className="bento-card-shine" />
+                  <CardContent className={`p-6 relative z-10 ${feature.featured ? "md:flex md:items-center md:gap-8" : ""}`}>
+                    <div className={`flex ${feature.featured ? "h-16 w-16" : "h-12 w-12"} items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10 mb-5 group-hover:from-primary/20 group-hover:to-primary/10 transition-colors`}>
+                      {feature.icon}
+                    </div>
+                    <div className={feature.featured ? "flex-1" : ""}>
+                      <h3 className={`font-semibold ${feature.featured ? "text-xl" : "text-lg"} mb-2`}>{feature.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {feature.tags.map((tag, j) => (
+                          <Badge key={j} variant="secondary" className="text-xs font-normal">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </FadeUp>
+            ))}
           </StaggerFade>
         </div>
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="relative px-4 py-24 overflow-hidden border-b">
+      <section className="relative px-4 py-24 overflow-hidden border-y">
+        <div className="section-shade absolute inset-0" />
         <div className="grid-pattern absolute inset-0 opacity-[0.06]" />
         <div className="relative mx-auto max-w-6xl">
           <FadeUp>
@@ -352,7 +451,6 @@ export default async function HomePage() {
             </p>
           </FadeUp>
           <StaggerFade className="relative grid gap-8 md:grid-cols-3">
-            {/* Connecting line */}
             <div className="absolute top-16 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 hidden md:block" />
             {steps.map((step, i) => (
               <FadeUp key={i}>
@@ -372,49 +470,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── BENTO FEATURES ─── */}
+      {/* ─── TESTIMONIALS ─── */}
       <section className="px-4 py-24">
         <div className="mx-auto max-w-6xl">
-          <FadeUp>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">Everything You Need</h2>
-            <p className="text-center text-muted-foreground mb-14 max-w-xl mx-auto text-lg">
-              Powerful features designed for serious readers
-            </p>
-          </FadeUp>
-          <StaggerFade className="grid gap-4 md:grid-cols-3 auto-rows-[1fr]">
-            {bentoFeatures.map((feature, i) => (
-              <FadeUp key={i}>
-                <Card className={`bento-card h-full group border ${feature.span ? "md:col-span-2" : ""}`}>
-                  <div className="bento-card-shine" />
-                  <CardContent className="p-6 relative z-10">
-                    <div className={`flex ${feature.span ? "flex-row items-center gap-6" : "flex-col"}`}>
-                      <div className={`${feature.span ? "shrink-0" : ""} mb-5 ${feature.span ? "mb-0" : ""} flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10 group-hover:from-primary/20 group-hover:to-primary/10 transition-colors`}>
-                        {feature.icon}
-                      </div>
-                      <div className={feature.span ? "flex-1" : ""}>
-                        <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {feature.tags.map((tag, j) => (
-                            <Badge key={j} variant="secondary" className="text-xs font-normal">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </FadeUp>
-            ))}
-          </StaggerFade>
-        </div>
-      </section>
-
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="relative px-4 py-24 overflow-hidden border-y">
-        <div className="section-shade absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl">
           <FadeUp>
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">Loved by Readers</h2>
             <p className="text-center text-muted-foreground mb-14 max-w-xl mx-auto text-lg">
@@ -424,13 +482,19 @@ export default async function HomePage() {
           <StaggerFade className="grid gap-6 md:grid-cols-3">
             {testimonials.map((t, i) => (
               <FadeUp key={i}>
-                <Card className="bento-card h-full border">
+                <div className="bento-card h-full rounded-xl border bg-card p-6 group">
                   <div className="bento-card-shine" />
-                  <CardContent className="p-6 relative z-10">
-                    <Quote className="h-6 w-6 text-primary/20 mb-3" />
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">&ldquo;{t.quote}&rdquo;</p>
+                  <div className="relative z-10">
+                    <div className="flex gap-1 mb-4">
+                      {[...Array(5)].map((_, j) => (
+                        <svg key={j} className="h-4 w-4 text-yellow-500 fill-yellow-500" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-5">&ldquo;{t.quote}&rdquo;</p>
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-xs font-semibold text-primary">
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-xs font-semibold text-primary ring-2 ring-background">
                         {t.name[0]}
                       </div>
                       <div>
@@ -438,8 +502,8 @@ export default async function HomePage() {
                         <p className="text-xs text-muted-foreground">{t.role}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </FadeUp>
             ))}
           </StaggerFade>
@@ -461,7 +525,7 @@ export default async function HomePage() {
                   Ready to Transform Your Reading?
                 </h2>
                 <p className="text-lg text-primary-foreground/80 mb-8 max-w-lg mx-auto leading-relaxed">
-                  Join thousands of readers who never lose their place.
+                  Join thousands of readers who never lose their place. Start reading free today.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link href={session?.user ? "/dashboard" : "/register"}>
@@ -490,6 +554,15 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function TabletIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
+      <line x1="12" x2="12.01" y1="18" y2="18" />
+    </svg>
   );
 }
 
@@ -522,48 +595,62 @@ const syncFeatures = [
   {
     icon: <RefreshCw className="h-5 w-5 text-primary" />,
     title: "Real-Time Auto-Save",
-    description: "Every page turn is saved instantly. Close the tab, switch devices, and pick up from the exact same sentence.",
+    description: "Every page turn saves instantly. Close the tab, switch devices, resume where you left off.",
   },
   {
     icon: <Layers className="h-5 w-5 text-primary" />,
     title: "Smart Bookmarks & Highlights",
-    description: "Bookmark passages, highlight text, and add notes. All synced across every device you own.",
+    description: "Bookmark passages, highlight text, add notes. All synced across every device.",
   },
   {
     icon: <CheckCircle className="h-5 w-5 text-primary" />,
     title: "Offline Resilience",
-    description: "Reading progress is cached locally. When connectivity returns, everything syncs seamlessly.",
+    description: "Progress caches locally. When you reconnect, everything syncs seamlessly.",
   },
 ];
 
-const bentoFeatures = [
+const features = [
   {
     icon: <RefreshCw className="h-6 w-6 text-primary" />,
     title: "Real-Time Cloud Sync",
     description: "Your reading position, bookmarks, and highlights sync across all devices automatically. Start on your phone, finish on your laptop.",
     tags: ["Real-time", "Cross-device", "Auto-save"],
-    span: true,
+    featured: false,
   },
   {
     icon: <BookMarked className="h-6 w-6 text-primary" />,
     title: "Smart Bookmarks",
     description: "Never lose a thought. Bookmark passages, highlight text, and add notes that sync everywhere.",
     tags: ["Highlights", "Annotations"],
-    span: false,
+    featured: false,
   },
   {
-    icon: <BookOpen className="h-6 w-6 text-primary" />,
+    icon: <FileText className="h-6 w-6 text-primary" />,
     title: "Auto Chapter Split",
     description: "Upload any PDF and our system intelligently splits it into chapters with smart text extraction.",
     tags: ["PDF Support", "Smart Parsing"],
-    span: false,
+    featured: false,
   },
   {
     icon: <Cloud className="h-6 w-6 text-primary" />,
     title: "Cloud Library",
     description: "All your books in one place, accessible from any device. No more searching through folders and files.",
     tags: ["Unlimited Storage", "Any Device"],
-    span: true,
+    featured: false,
+  },
+  {
+    icon: <Heart className="h-6 w-6 text-primary" />,
+    title: "Distraction-Free Reading",
+    description: "Clean, minimal interface designed for deep focus. Customize fonts, spacing, and themes to your liking.",
+    tags: ["Focus Mode", "Custom Themes"],
+    featured: false,
+  },
+  {
+    icon: <Zap className="h-6 w-6 text-primary" />,
+    title: "Lightning Fast",
+    description: "Optimized for speed. Pages load instantly, chapters render in milliseconds, and navigation is buttery smooth.",
+    tags: ["Optimized", "Fast"],
+    featured: false,
   },
 ];
 
