@@ -170,19 +170,29 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => el?.removeEventListener("scroll", handleScroll);
   }, [currentChapter, currentChapterIndex, saveProgress]);
 
-  // Save on page unload
+  // Save on page unload using sendBeacon for reliability
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (!containerRef.current || !session?.user?.id) return;
       const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
       const maxScroll = scrollHeight - clientHeight;
       const pct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
-      saveProgress(currentChapterIndex, scrollTop, pct);
+
+      const payload = new Blob(
+        [JSON.stringify({
+          bookId,
+          currentChapter: currentChapter?.chapterNumber || 1,
+          scrollPosition: scrollTop,
+          percentage: pct,
+        })],
+        { type: "application/json" }
+      );
+      navigator.sendBeacon("/api/progress", payload);
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentChapterIndex, saveProgress, session]);
+  }, [currentChapter, currentChapterIndex, session, bookId]);
 
   // Cleanup timer on unmount
   useEffect(() => {

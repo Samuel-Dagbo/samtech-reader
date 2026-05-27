@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import { Readable } from "stream";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -35,10 +34,7 @@ export async function uploadBufferToCloudinary(
         }
       }
     );
-    const readable = new Readable();
-    readable.push(buffer);
-    readable.push(null);
-    readable.pipe(uploadStream);
+    uploadStream.end(buffer);
   });
 }
 

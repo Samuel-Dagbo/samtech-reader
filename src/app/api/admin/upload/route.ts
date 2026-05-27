@@ -39,6 +39,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "PDF file is required" }, { status: 400 });
     }
 
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    if (pdfFile.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `PDF file too large. Maximum size is 50MB.` },
+        { status: 400 }
+      );
+    }
+
+    if (pdfFile.type && pdfFile.type !== "application/pdf") {
+      return NextResponse.json({ error: "File must be a PDF" }, { status: 400 });
+    }
+
+    if (coverFile && coverFile.size > 0) {
+      if (!coverFile.type?.startsWith("image/")) {
+        return NextResponse.json({ error: "Cover must be an image file" }, { status: 400 });
+      }
+    }
+
     await dbConnect();
 
     const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
@@ -63,7 +81,17 @@ export async function POST(req: Request) {
     }
 
     // Parse PDF directly from buffer
-    const { chapters, totalWords } = await parsePdfBuffer(pdfBuffer);
+    const { chapters, totalWords, totalPages } = await parsePdfBuffer(pdfBuffer);
+
+    if (chapters.length === 0 || totalWords === 0) {
+      // Clean up already uploaded files
+      if (uploadedPdfId) deleteFromCloudinary(uploadedPdfId).catch(() => {});
+      if (uploadedCoverId) deleteFromCloudinary(uploadedCoverId).catch(() => {});
+      return NextResponse.json(
+        { error: "Could not extract any text from this PDF. It may be a scanned document." },
+        { status: 400 }
+      );
+    }
 
     const readingTime = calculateReadingTime(chapters.map((c) => c.content).join(" "));
 
@@ -77,7 +105,7 @@ export async function POST(req: Request) {
       pdfUrl: pdfUpload.secure_url,
       cloudinaryPdfId: pdfUpload.public_id,
       totalChapters: chapters.length,
-      totalPages: chapters.length,
+      totalPages,
       readingTime,
       uploadedBy: session.user.id,
     });
@@ -93,7 +121,7 @@ export async function POST(req: Request) {
     await Chapter.insertMany(chapterDocs);
 
     return NextResponse.json(
-      { book, chapterCount: chapters.length, totalWords },
+      { book, chapterCount: chapters.length, totalWords, totalPages },
       { status: 201 }
     );
   } catch (error) {
