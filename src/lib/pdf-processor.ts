@@ -214,20 +214,37 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   totalWords: number;
   totalPages: number;
 }> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const doc: any = await pdfjs.getDocument({ data: new Uint8Array(pdfBuffer) }).promise;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const PDFJS = require("pdf-parse/lib/pdf.js/v2.0.550/build/pdf.js");
+  PDFJS.disableWorker = true;
+  const doc = await PDFJS.getDocument(new Uint8Array(pdfBuffer));
+  const totalPages = doc.numPages;
 
   const pages: { num: number; text: string }[] = [];
+  let fullText = "";
 
-  for (let i = 1; i <= doc.numPages; i++) {
+  for (let i = 1; i <= totalPages; i++) {
     const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    const text = content.items.map((item: { str?: string }) => (item.str || "")).join(" ");
+    const content = await page.getTextContent({
+      normalizeWhitespace: false,
+      disableCombineTextItems: false,
+    });
+    let lastY: number | undefined;
+    let text = "";
+    for (const item of content.items) {
+      if (lastY === (item as { transform: number[] }).transform[5] || !lastY) {
+        text += (item as { str: string }).str;
+      } else {
+        text += "\n" + (item as { str: string }).str;
+      }
+      lastY = (item as { transform: number[] }).transform[5];
+    }
     pages.push({ num: i, text });
+    fullText += (fullText ? "\n\n" : "") + text;
     page.cleanup();
   }
+
+  await doc.destroy();
 
   const toc = extractToc(pages);
 
@@ -236,13 +253,13 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   const chapters = splitIntoChapters(pages, boundaries);
 
   if (chapters.length === 0) {
-    let fullText = "";
+    let allText = "";
     for (const p of pages) {
       if (p.num <= 3) continue;
-      fullText += p.text + "\n";
+      allText += p.text + "\n";
     }
-    fullText = cleanText(fullText.trim());
-    const words = fullText.split(/\s+/);
+    allText = cleanText(allText.trim());
+    const words = allText.split(/\s+/);
 
     if (words.length >= 100) {
       const wordsPerChapter = Math.max(1000, Math.floor(words.length / 10));
@@ -260,25 +277,16 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
       chapters.push({
         chapterNumber: 1,
         title: "Chapter 1",
-        content: fullText,
+        content: allText,
         wordCount: words.length,
       });
     }
   }
 
-  let fullText = "";
-  for (const p of pages) {
-    if (p.num <= 3) continue;
-    fullText += p.text + "\n";
-  }
-  fullText = cleanText(fullText.trim());
-
-  await doc.destroy();
-
   return {
     fullText,
     chapters,
     totalWords: fullText.split(/\s+/).length,
-    totalPages: doc.numPages,
+    totalPages,
   };
 }
