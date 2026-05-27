@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
     await dbConnect();
 
-    const query: Record<string, any> = {};
+    const query: Record<string, unknown> = {};
     if (genre) query.genre = genre;
     if (search) {
       query.$or = [

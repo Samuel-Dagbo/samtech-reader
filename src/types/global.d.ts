@@ -1,9 +1,3 @@
-declare global {
-  var mongooseCache:
-    | { conn: any | null; promise: Promise<any> | null }
-    | undefined;
-}
-
 declare module "next-auth" {
   interface User {
     role?: string;

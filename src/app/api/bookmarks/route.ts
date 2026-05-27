@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
     await dbConnect();
 
-    const query: Record<string, any> = { userId: session.user.id };
+    const query: Record<string, unknown> = { userId: session.user.id };
     if (bookId) query.bookId = bookId;
 
     const bookmarks = await Bookmark.find(query)

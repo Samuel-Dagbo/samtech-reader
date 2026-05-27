@@ -7,7 +7,6 @@ import ReadingProgress from "@/models/ReadingProgress";
 import Bookmark from "@/models/Bookmark";
 import { ReaderView } from "@/components/reader/reader-view";
 import { notFound } from "next/navigation";
-import type { ObjectId } from "mongoose";
 
 export const dynamic = "force-dynamic";
 

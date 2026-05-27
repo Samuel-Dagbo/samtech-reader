@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
 import ReadingProgress from "@/models/ReadingProgress";
 import Bookmark from "@/models/Bookmark";
-import Book from "@/models/Book";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -61,7 +60,8 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {recentProgress.map((p: any) => (
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {recentProgress.map((p: any) => (
                   <Link
                     key={p._id.toString()}
                     href={`/reader/${p.bookId._id}`}
@@ -100,6 +100,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {bookmarks.map((b: any) => (
                   <div key={b._id.toString()} className="border-b pb-2 last:border-0">
                     <p className="text-sm font-medium">{b.text.slice(0, 60)}...</p>

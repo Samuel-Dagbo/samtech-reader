@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
 import Bookmark from "@/models/Bookmark";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { BookMarked } from "lucide-react";
 
@@ -38,6 +38,7 @@ export default async function BookmarksPage() {
         </Card>
       ) : (
         <div className="space-y-3">
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {bookmarks.map((b: any) => (
             <Card key={b._id.toString()}>
               <CardContent className="pt-6">

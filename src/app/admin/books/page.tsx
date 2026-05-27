@@ -5,7 +5,7 @@ import Book from "@/models/Book";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, BookOpen } from "lucide-react";
+import { Plus, Pencil, BookOpen } from "lucide-react";
 import { DeleteBookButton } from "./delete-button";
 
 export const dynamic = "force-dynamic";

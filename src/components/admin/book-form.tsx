@@ -61,6 +61,7 @@ export function BookForm() {
     }
 
     setLoading(true);
+    const form = e.currentTarget;
 
     try {
       // Step 1: Upload PDF directly to Cloudinary (bypasses Vercel body limit)
@@ -70,7 +71,7 @@ export function BookForm() {
 
       // Step 2: Submit metadata + Cloudinary URL to server for processing
       toast.loading("Processing book content...");
-      const formData = new FormData(e.currentTarget);
+      const formData = new FormData(form);
       formData.delete("pdf");
       formData.set("cloudinaryUrl", cloudinaryUrl);
       formData.set("cloudinaryPdfId", cloudinaryPdfId);
@@ -85,9 +86,9 @@ export function BookForm() {
       toast.success(`Book uploaded! ${data.chapterCount} chapters created.`);
       router.push("/admin/books");
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.dismiss();
-      toast.error(err.message);
+      toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setLoading(false);
     }

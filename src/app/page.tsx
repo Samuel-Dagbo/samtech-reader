@@ -2,17 +2,16 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import ReadingProgress from "@/models/ReadingProgress";
-import Book from "@/models/Book";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Cloud, BookMarked, ArrowRight, Sparkles, Clock } from "lucide-react";
+import { BookOpen, Cloud, BookMarked, ArrowRight, Sparkles } from "lucide-react";
 import { HeroAnimation } from "@/components/hero-animation";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const session = await auth();
-  let continueReading: any[] = [];
+  let continueReading: Record<string, unknown>[] = [];
 
   if (session?.user?.id) {
     await dbConnect();
@@ -85,6 +84,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {continueReading.map((item: any) => {
                 const book = item.bookId;
                 if (!book) return null;
