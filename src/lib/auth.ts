@@ -1,8 +1,5 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import dbConnect from "./db";
-import User from "@/models/User";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -13,6 +10,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        // Lazy imports to avoid pulling MongoDB into Edge Runtime
+        const bcrypt = (await import("bcryptjs")).default;
+        const { default: dbConnect } = await import("./db");
+        const { default: User } = await import("@/models/User");
+
         const creds = credentials as Record<string, string>;
         if (!creds?.email || !creds?.password) return null;
 
