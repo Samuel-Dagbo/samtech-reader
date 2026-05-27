@@ -1,6 +1,14 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+if (!process.env.NEXTAUTH_URL) {
+  if (process.env.VERCEL_URL) {
+    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+  } else {
+    process.env.NEXTAUTH_URL = "http://localhost:3000";
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     CredentialsProvider({
@@ -10,7 +18,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Lazy imports to avoid pulling MongoDB into Edge Runtime
         const bcrypt = (await import("bcryptjs")).default;
         const { default: dbConnect } = await import("./db");
         const { default: User } = await import("@/models/User");

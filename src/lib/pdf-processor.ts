@@ -1,4 +1,6 @@
-import { PDFParse } from "pdf-parse";
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
+
+pdfjs.GlobalWorkerOptions.workerSrc = "";
 
 export interface ChapterData {
   chapterNumber: number;
@@ -74,7 +76,6 @@ function findChapterBoundaries(
 ): { page: number; num: number; title: string }[] {
   const boundaries: { page: number; num: number; title: string }[] = [];
 
-  // Build Part subtitle lookup: "Part V. Two Selves" → "Two Selves"
   const partSubtitles: { title: string; label: string }[] = [];
   for (const entry of toc) {
     if (entry.num === 0) {
@@ -91,10 +92,8 @@ function findChapterBoundaries(
     if (lines.length === 0) continue;
     const first = lines[0].trim();
 
-    // Calculate approximate word count for this page
     const pageWords = p.text.split(/\s+/).filter(Boolean).length;
 
-    // Check if this is a Part subtitle page (very few words, matches part subtitle)
     let partMatch: { title: string; label: string } | undefined;
     for (const ps of partSubtitles) {
       if (first.toLowerCase() === ps.title.toLowerCase()) {
@@ -103,7 +102,6 @@ function findChapterBoundaries(
       }
     }
 
-    // Check if this is a numbered chapter match
     let chapterMatch: TocEntry | undefined;
     for (const entry of toc) {
       if (entry.num > 0 && first.toLowerCase() === entry.title.toLowerCase()) {
@@ -112,9 +110,6 @@ function findChapterBoundaries(
       }
     }
 
-    // If both Part subtitle and chapter match the same text:
-    // - If page has very few words, it's a Part subtitle page
-    // - If page has content, it's a chapter page
     if (partMatch && chapterMatch) {
       if (pageWords < 10) {
         boundaries.push({ page: p.num, num: 0, title: partMatch.label });
@@ -124,19 +119,16 @@ function findChapterBoundaries(
       continue;
     }
 
-    // Only chapter match (no Part overlap)
     if (chapterMatch) {
       boundaries.push({ page: p.num, num: chapterMatch.num, title: chapterMatch.num + ". " + chapterMatch.title });
       continue;
     }
 
-    // Only Part subtitle match
     if (partMatch) {
       boundaries.push({ page: p.num, num: 0, title: partMatch.label });
       continue;
     }
 
-    // Structural headings (Introduction, Appendix, Notes, Index, Part N)
     const structuralMatch = first.match(/^(Introduction|Appendix\s+[A-Z]|Notes|Index|Part\s+\d+)$/i);
     if (structuralMatch) {
       const title = structuralMatch[0];
@@ -149,7 +141,6 @@ function findChapterBoundaries(
     }
   }
 
-  // Sort by page number
   boundaries.sort((a, b) => a.page - b.page);
   return boundaries;
 }
@@ -161,7 +152,6 @@ function splitIntoChapters(
   const chapters: ChapterData[] = [];
   if (boundaries.length === 0) return chapters;
 
-  // Preamble (pages before first boundary)
   let preambleText = "";
   for (const p of pages) {
     if (p.num < boundaries[0].page) {
@@ -181,7 +171,6 @@ function splitIntoChapters(
     }
   }
 
-  // Build chapters, merging Part subtitle pages (wordCount < 10) into the next chapter
   let mergedTitle = "";
 
   for (let i = 0; i < boundaries.length; i++) {
@@ -216,7 +205,6 @@ function splitIntoChapters(
     });
   }
 
-  // Assign unique sequential chapter numbers (preserving order)
   chapters.forEach((ch, i) => {
     ch.chapterNumber = i + 1;
   });
@@ -230,24 +218,24 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   totalWords: number;
   totalPages: number;
 }> {
-  const parser = new PDFParse({ data: new Uint8Array(pdfBuffer) });
-  const result = await parser.getText({ includeMarkedContent: true });
+  const doc = await pdfjs.getDocument({ data: new Uint8Array(pdfBuffer) }).promise;
 
-  const pages = result.pages.map((p) => ({
-    num: p.num,
-    text: p.text,
-  }));
+  const pages: { num: number; text: string }[] = [];
 
-  // Extract TOC from early pages
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items.map((item: any) => item.str).join(" ");
+    pages.push({ num: i, text });
+    page.cleanup();
+  }
+
   const toc = extractToc(pages);
 
-  // Find chapter boundaries by matching TOC titles against page first lines
   const boundaries = findChapterBoundaries(pages, toc);
 
-  // Split text into chapters using boundaries
   const chapters = splitIntoChapters(pages, boundaries);
 
-  // Fallback if no boundaries were detected: auto-split by word count
   if (chapters.length === 0) {
     let fullText = "";
     for (const p of pages) {
@@ -279,7 +267,6 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
     }
   }
 
-  // Build full clean text
   let fullText = "";
   for (const p of pages) {
     if (p.num <= 3) continue;
@@ -287,12 +274,12 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   }
   fullText = cleanText(fullText.trim());
 
-  parser.destroy();
+  await doc.destroy();
 
   return {
     fullText,
     chapters,
     totalWords: fullText.split(/\s+/).length,
-    totalPages: result.total,
+    totalPages: doc.numPages,
   };
 }

@@ -40,7 +40,8 @@ export async function POST(req: Request) {
       { id: user._id, name: user.name, email: user.email, role: user.role },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    console.error("Registration error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

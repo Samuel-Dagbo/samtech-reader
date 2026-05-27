@@ -48,7 +48,8 @@ export async function GET() {
       recentBooks,
       popularBooks,
     });
-  } catch {
+  } catch (error) {
+    console.error("Analytics fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 });
   }
 }

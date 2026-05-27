@@ -42,7 +42,8 @@ export async function GET(req: Request) {
       .lean();
 
     return NextResponse.json(allProgress);
-  } catch {
+  } catch (error) {
+    console.error("Progress fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch progress" }, { status: 500 });
   }
 }
@@ -64,7 +65,8 @@ export async function POST(req: Request) {
     ).lean();
 
     return NextResponse.json(progress);
-  } catch {
+  } catch (error) {
+    console.error("Progress save error:", error);
     return NextResponse.json({ error: "Failed to save progress" }, { status: 500 });
   }
 }

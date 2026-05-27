@@ -15,7 +15,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ bookId: 
     }
 
     return NextResponse.json(chapter);
-  } catch {
+  } catch (error) {
+    console.error("Chapter fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch chapter" }, { status: 500 });
   }
 }

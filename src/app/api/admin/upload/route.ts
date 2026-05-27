@@ -11,6 +11,15 @@ import { bookSchema } from "@/lib/validations";
 export const maxDuration = 60;
 export const runtime = "nodejs";
 
+async function fetchPdfBuffer(url: string): Promise<Buffer> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch PDF from Cloudinary: ${response.status}`);
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+}
+
 export async function POST(req: Request) {
   let uploadedPdfId: string | null = null;
   let uploadedCoverId: string | null = null;
@@ -27,7 +36,11 @@ export async function POST(req: Request) {
     const author = formData.get("author") as string;
     const genre = (formData.get("genre") as string) || "";
     const tags = (formData.get("tags") as string) || "";
-    const pdfFile = formData.get("pdf") as File;
+
+    // Support both direct file upload and Cloudinary URL upload
+    const cloudinaryUrl = formData.get("cloudinaryUrl") as string | null;
+    const cloudinaryPdfId = formData.get("cloudinaryPdfId") as string | null;
+    const pdfFile = formData.get("pdf") as File | null;
     const coverFile = formData.get("cover") as File | null;
 
     const parsed = bookSchema.safeParse({ title, description, author, genre, tags });
@@ -38,42 +51,54 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!pdfFile || pdfFile.size === 0) {
-      return NextResponse.json({ error: "PDF file is required" }, { status: 400 });
-    }
-
-    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-    if (pdfFile.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: `PDF file too large. Maximum size is 50MB.` },
-        { status: 400 }
-      );
-    }
-
-    if (pdfFile.type && pdfFile.type !== "application/pdf") {
-      return NextResponse.json({ error: "File must be a PDF" }, { status: 400 });
-    }
-
-    if (coverFile && coverFile.size > 0) {
-      if (!coverFile.type?.startsWith("image/")) {
-        return NextResponse.json({ error: "Cover must be an image file" }, { status: 400 });
-      }
+    if (!cloudinaryUrl && (!pdfFile || pdfFile.size === 0)) {
+      return NextResponse.json({ error: "PDF file or Cloudinary URL is required" }, { status: 400 });
     }
 
     await dbConnect();
 
-    const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
+    let pdfBuffer: Buffer;
+    let pdfSecureUrl: string;
+    let pdfPublicId: string;
 
-    // Upload PDF to Cloudinary via stream
-    const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
-      folder: "samtech-reader/pdfs",
-      resource_type: "raw",
-    });
-    uploadedPdfId = pdfUpload.public_id;
+    if (cloudinaryUrl) {
+      // PDF already uploaded to Cloudinary by client - fetch it for processing
+      pdfBuffer = await fetchPdfBuffer(cloudinaryUrl);
+      pdfSecureUrl = cloudinaryUrl;
+      pdfPublicId = cloudinaryPdfId || `samtech-reader/pdfs/${cloudinaryUrl.split("/").pop()?.replace(/\.[^/.]+$/, "") || "unknown"}`;
+    } else if (pdfFile && pdfFile.size > 0) {
+      // Direct file upload - upload to Cloudinary first
+      const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+      if (pdfFile.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `PDF file too large. Maximum size is 50MB.` },
+          { status: 400 }
+        );
+      }
+
+      if (pdfFile.type && pdfFile.type !== "application/pdf") {
+        return NextResponse.json({ error: "File must be a PDF" }, { status: 400 });
+      }
+
+      pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
+
+      const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
+        folder: "samtech-reader/pdfs",
+        resource_type: "raw",
+      });
+      pdfSecureUrl = pdfUpload.secure_url;
+      pdfPublicId = pdfUpload.public_id;
+      uploadedPdfId = pdfPublicId;
+    } else {
+      return NextResponse.json({ error: "No PDF provided" }, { status: 400 });
+    }
 
     // Upload cover image if provided
     let coverImage = "";
     if (coverFile && coverFile.size > 0) {
+      if (!coverFile.type?.startsWith("image/")) {
+        return NextResponse.json({ error: "Cover must be an image file" }, { status: 400 });
+      }
       const coverBuffer = Buffer.from(await coverFile.arrayBuffer());
       const coverUpload = await uploadBufferToCloudinary(coverBuffer, {
         folder: "samtech-reader/covers",
@@ -83,11 +108,10 @@ export async function POST(req: Request) {
       uploadedCoverId = coverUpload.public_id;
     }
 
-    // Parse PDF directly from buffer
+    // Parse PDF from buffer
     const { chapters, totalWords, totalPages } = await parsePdfBuffer(pdfBuffer);
 
     if (chapters.length === 0 || totalWords === 0) {
-      // Clean up already uploaded files
       if (uploadedPdfId) deleteFromCloudinary(uploadedPdfId).catch(() => {});
       if (uploadedCoverId) deleteFromCloudinary(uploadedCoverId).catch(() => {});
       return NextResponse.json(
@@ -105,8 +129,8 @@ export async function POST(req: Request) {
       genre,
       tags,
       coverImage,
-      pdfUrl: pdfUpload.secure_url,
-      cloudinaryPdfId: pdfUpload.public_id,
+      pdfUrl: pdfSecureUrl,
+      cloudinaryPdfId: pdfPublicId,
       totalChapters: chapters.length,
       totalPages,
       readingTime,
@@ -128,7 +152,6 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    // Clean up Cloudinary files on failure
     if (uploadedPdfId) {
       deleteFromCloudinary(uploadedPdfId).catch(() => {});
     }

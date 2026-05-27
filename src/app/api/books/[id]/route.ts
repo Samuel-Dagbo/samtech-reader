@@ -21,7 +21,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       .lean();
 
     return NextResponse.json({ book, chapters });
-  } catch {
+  } catch (error) {
+    console.error("Book fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch book" }, { status: 500 });
   }
 }
@@ -50,7 +51,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     await Chapter.deleteMany({ bookId: id });
 
     return NextResponse.json({ message: "Book deleted" });
-  } catch {
+  } catch (error) {
+    console.error("Book delete error:", error);
     return NextResponse.json({ error: "Failed to delete book" }, { status: 500 });
   }
 }
@@ -72,7 +74,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     return NextResponse.json(book);
-  } catch {
+  } catch (error) {
+    console.error("Book update error:", error);
     return NextResponse.json({ error: "Failed to update book" }, { status: 500 });
   }
 }

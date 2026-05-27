@@ -35,6 +35,7 @@ export async function GET(req: Request) {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
+    console.error("Books fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch books" }, { status: 500 });
   }
 }

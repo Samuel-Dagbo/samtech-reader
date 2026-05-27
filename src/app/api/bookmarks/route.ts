@@ -24,7 +24,8 @@ export async function GET(req: Request) {
       .lean();
 
     return NextResponse.json(bookmarks);
-  } catch {
+  } catch (error) {
+    console.error("Bookmarks fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch bookmarks" }, { status: 500 });
   }
 }
@@ -48,7 +49,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(bookmark, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("Bookmark create error:", error);
     return NextResponse.json({ error: "Failed to create bookmark" }, { status: 500 });
   }
 }
@@ -73,7 +75,8 @@ export async function DELETE(req: Request) {
     }
 
     return NextResponse.json({ message: "Bookmark deleted" });
-  } catch {
+  } catch (error) {
+    console.error("Bookmark delete error:", error);
     return NextResponse.json({ error: "Failed to delete bookmark" }, { status: 500 });
   }
 }
