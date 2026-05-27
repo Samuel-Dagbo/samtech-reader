@@ -3,11 +3,15 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Book from "@/models/Book";
 import Chapter from "@/models/Chapter";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { uploadBufferToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary";
 import { parsePdfBuffer } from "@/lib/pdf-processor";
 import { calculateReadingTime } from "@/lib/utils";
+import { bookSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
+  let uploadedPdfId: string | null = null;
+  let uploadedCoverId: string | null = null;
+
   try {
     const session = await auth();
     if (!session?.user?.id || session.user.role !== "admin") {
@@ -23,39 +27,42 @@ export async function POST(req: Request) {
     const pdfFile = formData.get("pdf") as File;
     const coverFile = formData.get("cover") as File | null;
 
-    if (!title || !description || !author || !pdfFile) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const parsed = bookSchema.safeParse({ title, description, author, genre, tags });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues.map((e) => e.message).join(", ") },
+        { status: 400 }
+      );
+    }
+
+    if (!pdfFile || pdfFile.size === 0) {
+      return NextResponse.json({ error: "PDF file is required" }, { status: 400 });
     }
 
     await dbConnect();
 
-    // Convert PDF to buffer for parsing (no temp files needed)
-    const pdfArrayBuffer = await pdfFile.arrayBuffer();
-    const pdfBuffer = Buffer.from(pdfArrayBuffer);
+    const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
 
-    // Upload PDF to Cloudinary
-    const pdfBase64 = pdfBuffer.toString("base64");
-    const pdfDataUri = `data:application/pdf;base64,${pdfBase64}`;
-
-    const pdfUpload = await uploadToCloudinary(pdfDataUri, {
+    // Upload PDF to Cloudinary via stream
+    const pdfUpload = await uploadBufferToCloudinary(pdfBuffer, {
       folder: "samtech-reader/pdfs",
       resource_type: "raw",
     });
+    uploadedPdfId = pdfUpload.public_id;
 
     // Upload cover image if provided
     let coverImage = "";
-    if (coverFile) {
+    if (coverFile && coverFile.size > 0) {
       const coverBuffer = Buffer.from(await coverFile.arrayBuffer());
-      const coverBase64 = coverBuffer.toString("base64");
-      const coverDataUri = `data:${coverFile.type};base64,${coverBase64}`;
-      const coverUpload = await uploadToCloudinary(coverDataUri, {
+      const coverUpload = await uploadBufferToCloudinary(coverBuffer, {
         folder: "samtech-reader/covers",
         resource_type: "image",
       });
       coverImage = coverUpload.secure_url;
+      uploadedCoverId = coverUpload.public_id;
     }
 
-    // Parse PDF directly from buffer (no temp file, no re-download)
+    // Parse PDF directly from buffer
     const { chapters, totalWords } = await parsePdfBuffer(pdfBuffer);
 
     const readingTime = calculateReadingTime(chapters.map((c) => c.content).join(" "));
@@ -90,6 +97,14 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    // Clean up Cloudinary files on failure
+    if (uploadedPdfId) {
+      deleteFromCloudinary(uploadedPdfId).catch(() => {});
+    }
+    if (uploadedCoverId) {
+      deleteFromCloudinary(uploadedCoverId).catch(() => {});
+    }
+
     console.error("Upload error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to process book" },

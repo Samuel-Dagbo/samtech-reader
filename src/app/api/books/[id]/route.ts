@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Book from "@/models/Book";
 import Chapter from "@/models/Chapter";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -35,11 +36,17 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const { id } = await params;
     await dbConnect();
 
-    const book = await Book.findByIdAndDelete(id);
+    const book = await Book.findById(id);
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
+    // Clean up Cloudinary files
+    if (book.cloudinaryPdfId) {
+      deleteFromCloudinary(book.cloudinaryPdfId).catch(() => {});
+    }
+
+    await Book.findByIdAndDelete(id);
     await Chapter.deleteMany({ bookId: id });
 
     return NextResponse.json({ message: "Book deleted" });
