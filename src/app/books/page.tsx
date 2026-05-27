@@ -18,7 +18,7 @@ export default async function BooksPage() {
 
   const books = await Book.find().sort({ createdAt: -1 }).lean();
 
-  let progressMap: Record<string, number> = {};
+  const progressMap: Record<string, number> = {};
   if (session?.user?.id) {
     const progress = await ReadingProgress.find({
       userId: session.user.id,

@@ -247,10 +247,42 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   // Split text into chapters using boundaries
   const chapters = splitIntoChapters(pages, boundaries);
 
+  // Fallback if no boundaries were detected: auto-split by word count
+  if (chapters.length === 0) {
+    let fullText = "";
+    for (const p of pages) {
+      if (p.num <= 3) continue;
+      fullText += p.text + "\n";
+    }
+    fullText = cleanText(fullText.trim());
+    const words = fullText.split(/\s+/);
+
+    if (words.length >= 100) {
+      const wordsPerChapter = Math.max(1000, Math.floor(words.length / 10));
+      let seq = 1;
+      for (let i = 0; i < words.length; i += wordsPerChapter) {
+        const chunk = words.slice(i, i + wordsPerChapter).join(" ");
+        chapters.push({
+          chapterNumber: seq++,
+          title: `Chapter ${seq - 1}`,
+          content: chunk,
+          wordCount: chunk.split(/\s+/).length,
+        });
+      }
+    } else if (words.length > 0) {
+      chapters.push({
+        chapterNumber: 1,
+        title: "Chapter 1",
+        content: fullText,
+        wordCount: words.length,
+      });
+    }
+  }
+
   // Build full clean text
   let fullText = "";
   for (const p of pages) {
-    if (p.num <= 3) continue; // Skip title/copyright pages
+    if (p.num <= 3) continue;
     fullText += p.text + "\n";
   }
   fullText = cleanText(fullText.trim());

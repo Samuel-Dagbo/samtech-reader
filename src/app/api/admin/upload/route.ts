@@ -8,6 +8,9 @@ import { parsePdfBuffer } from "@/lib/pdf-processor";
 import { calculateReadingTime } from "@/lib/utils";
 import { bookSchema } from "@/lib/validations";
 
+export const maxDuration = 60;
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
   let uploadedPdfId: string | null = null;
   let uploadedCoverId: string | null = null;

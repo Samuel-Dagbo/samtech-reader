@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Chapter from "@/models/Chapter";
 
+export const runtime = "nodejs";
+
 export async function GET(req: Request, { params }: { params: Promise<{ bookId: string; chapterNum: string }> }) {
   try {
     const { bookId, chapterNum } = await params;

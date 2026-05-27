@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,9 @@ import { ReadingProgressBar } from "./reading-progress";
 import { FontControls } from "./font-controls";
 import { BookmarkButton } from "./bookmark-button";
 import {
-  ChevronLeft, ChevronRight, List, Search, X, Bookmark,
+  ChevronLeft, ChevronRight, List, Search, X,
 } from "lucide-react";
 import DOMPurify from "isomorphic-dompurify";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 interface ChapterData {
@@ -54,14 +53,25 @@ export function ReaderView({ data }: ReaderViewProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
-  const [fontSize, setFontSize] = useState(18);
-  const [percentage, setPercentage] = useState(0);
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(() => {
+    if (data.progress) {
+      const idx = data.chapters.findIndex((c) => c.chapterNumber === (data.progress!.currentChapter || 1));
+      return idx >= 0 ? idx : 0;
+    }
+    return 0;
+  });
+  const [fontSize, setFontSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("samtech-font-size");
+      return saved ? parseInt(saved, 10) : 18;
+    }
+    return 18;
+  });
+  const [percentage, setPercentage] = useState(data.progress?.percentage || 0);
   const [showToc, setShowToc] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkData[]>(data.bookmarks);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentSearchIdx, setCurrentSearchIdx] = useState(0);
   const [headerVisible, setHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -72,42 +82,23 @@ export function ReaderView({ data }: ReaderViewProps) {
   const bookId = data.book._id;
   const chapters = data.chapters;
 
-  // Load persisted font size
-  useEffect(() => {
-    const saved = localStorage.getItem("samtech-font-size");
-    if (saved) setFontSize(parseInt(saved, 10));
-  }, []);
-
   // Save font size on change
   useEffect(() => {
     localStorage.setItem("samtech-font-size", String(fontSize));
   }, [fontSize]);
 
-  // Restore saved chapter and scroll position
+  // Restore saved scroll position after content renders
   useEffect(() => {
-    if (data.progress) {
-      const idx = chapters.findIndex(
-        (c) => c.chapterNumber === (data.progress!.currentChapter || 1)
-      );
-      if (idx >= 0) {
-        setCurrentChapterIndex(idx);
-        setPercentage(data.progress.percentage || 0);
-        // Scroll position will be restored after content renders
-        if (data.progress.scrollPosition > 0) {
-          setTimeout(() => {
-            if (containerRef.current) {
-              containerRef.current.scrollTop = data.progress!.scrollPosition;
-              initialScrollRestored.current = true;
-            }
-          }, 100);
-        } else {
-          initialScrollRestored.current = true;
+    const savedScroll = data.progress?.scrollPosition;
+    if (savedScroll && containerRef.current) {
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = savedScroll;
         }
-      }
-    } else {
-      initialScrollRestored.current = true;
+      }, 100);
     }
-  }, []);
+    initialScrollRestored.current = true;
+  }, [data.progress?.scrollPosition]);
 
   const currentChapter = chapters[currentChapterIndex];
   const totalChapters = chapters.length;
@@ -222,7 +213,6 @@ export function ReaderView({ data }: ReaderViewProps) {
       if (e.key === "Escape" && showSearch) {
         setShowSearch(false);
         setSearchQuery("");
-        setSearchResults([]);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -230,13 +220,8 @@ export function ReaderView({ data }: ReaderViewProps) {
   }, [showSearch]);
 
   // Search within current chapter
-  useEffect(() => {
-    if (!searchQuery.trim() || !currentChapter) {
-      setSearchResults([]);
-      setCurrentSearchIdx(0);
-      return;
-    }
-
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || !currentChapter) return [];
     const content = currentChapter.content.toLowerCase();
     const query = searchQuery.toLowerCase();
     const indices: number[] = [];
@@ -245,8 +230,7 @@ export function ReaderView({ data }: ReaderViewProps) {
       indices.push(pos);
       pos += 1;
     }
-    setSearchResults(indices);
-    setCurrentSearchIdx(indices.length > 0 ? 0 : -1);
+    return indices;
   }, [searchQuery, currentChapter]);
 
   // Navigate search results
@@ -410,7 +394,6 @@ export function ReaderView({ data }: ReaderViewProps) {
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
             setShowSearch(false);
             setSearchQuery("");
-            setSearchResults([]);
           }}>
             <X className="h-3 w-3" />
           </Button>
