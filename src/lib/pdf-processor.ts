@@ -1,7 +1,3 @@
-import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
-
-pdfjs.GlobalWorkerOptions.workerSrc = "";
-
 export interface ChapterData {
   chapterNumber: number;
   title: string;
@@ -218,14 +214,17 @@ export async function parsePdfBuffer(pdfBuffer: Buffer): Promise<{
   totalWords: number;
   totalPages: number;
 }> {
-  const doc = await pdfjs.getDocument({ data: new Uint8Array(pdfBuffer) }).promise;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const doc: any = await pdfjs.getDocument({ data: new Uint8Array(pdfBuffer) }).promise;
 
   const pages: { num: number; text: string }[] = [];
 
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i);
     const content = await page.getTextContent();
-    const text = content.items.map((item) => ("str" in item ? item.str : "")).join(" ");
+    const text = content.items.map((item: { str?: string }) => (item.str || "")).join(" ");
     pages.push({ num: i, text });
     page.cleanup();
   }

@@ -9,32 +9,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import { Loader2, Upload, Server } from "lucide-react";
 
-interface UploadParams {
-  signature: string;
-  timestamp: number;
-  apiKey: string;
-  cloudName: string;
-  folder: string;
-}
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dmjcwnmpu";
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "samtech_reader_books";
 
 async function uploadPdfToCloudinary(file: File): Promise<{ secure_url: string; public_id: string }> {
-  const res = await fetch("/api/admin/upload/signature");
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to get upload signature");
-  }
-
-  const params: UploadParams = await res.json();
-
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("api_key", params.apiKey);
-  formData.append("timestamp", String(params.timestamp));
-  formData.append("signature", params.signature);
-  formData.append("folder", params.folder);
+  formData.append("upload_preset", UPLOAD_PRESET);
 
   const uploadRes = await fetch(
-    `https://api.cloudinary.com/v1_1/${params.cloudName}/raw/upload`,
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`,
     { method: "POST", body: formData }
   );
 
