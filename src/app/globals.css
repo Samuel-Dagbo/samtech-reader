@@ -293,7 +293,13 @@
   opacity: 1;
 }
 
-
+.resume-highlight {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1rem;
+  background: linear-gradient(to right, color-mix(in oklch, var(--color-primary) 5%, transparent), transparent 60%);
+  border-radius: 0 4px 4px 0;
+  transition: background 0.3s ease;
+}
 
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.4; transform: scale(1); }

@@ -81,6 +81,7 @@ export function ReaderView({ data }: ReaderViewProps) {
   const initialScrollRestored = useRef(false);
   const markerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const highlightedParagraphIdx = useRef<number | null>(null);
 
   const bookId = data.book._id;
   const chapters = data.chapters;
@@ -101,6 +102,29 @@ export function ReaderView({ data }: ReaderViewProps) {
         if (containerRef.current) {
           containerRef.current.scrollTop = savedScroll;
         }
+        // Highlight the paragraph at the saved scroll position
+        requestAnimationFrame(() => {
+          if (!containerRef.current) return;
+          const contentEl = containerRef.current.querySelector(".prose-reading");
+          if (!contentEl) return;
+          const paragraphs = contentEl.querySelectorAll("p");
+          let closestIdx = -1;
+          let closestDist = Infinity;
+          paragraphs.forEach((p, i) => {
+            const rect = p.getBoundingClientRect();
+            const cRect = containerRef.current!.getBoundingClientRect();
+            const pTop = rect.top - cRect.top + containerRef.current!.scrollTop;
+            const dist = Math.abs(pTop - savedScroll);
+            if (dist < closestDist) {
+              closestDist = dist;
+              closestIdx = i;
+            }
+          });
+          if (closestIdx >= 0) {
+            highlightedParagraphIdx.current = closestIdx;
+            paragraphs[closestIdx].classList.add("resume-highlight");
+          }
+        });
         // Fade marker after 6s
         setTimeout(() => setMarkerOffset(null), 6000);
       }, 100);
@@ -153,7 +177,7 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => el.removeEventListener("scroll", handleScrollDirection);
   }, [currentChapter]);
 
-  // Track scroll for progress + auto-save
+  // Track scroll for progress + auto-save + clear paragraph highlight
   useEffect(() => {
     if (!currentChapter) return;
 
@@ -163,6 +187,24 @@ export function ReaderView({ data }: ReaderViewProps) {
       const maxScroll = scrollHeight - clientHeight;
       const chapterPct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
       setPercentage(chapterPct);
+
+      // Clear paragraph highlight when user scrolls far from it
+      if (highlightedParagraphIdx.current !== null) {
+        const contentEl = containerRef.current.querySelector(".prose-reading");
+        if (contentEl) {
+          const paragraphs = contentEl.querySelectorAll("p");
+          const target = paragraphs[highlightedParagraphIdx.current];
+          if (target) {
+            const rect = target.getBoundingClientRect();
+            const cRect = containerRef.current.getBoundingClientRect();
+            const threshold = 200;
+            if (rect.bottom < cRect.top - threshold || rect.top > cRect.bottom + threshold) {
+              target.classList.remove("resume-highlight");
+              highlightedParagraphIdx.current = null;
+            }
+          }
+        }
+      }
 
       const overall = totalChapters > 0
         ? Math.round((currentChapterIndex / totalChapters) * 100 + chapterPct / totalChapters)
@@ -207,6 +249,19 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [currentChapter, currentChapterIndex, session, bookId, totalChapters]);
 
+  // Re-apply paragraph highlight after content re-renders
+  useEffect(() => {
+    if (highlightedParagraphIdx.current === null) return;
+    const rafId = requestAnimationFrame(() => {
+      const contentEl = containerRef.current?.querySelector(".prose-reading");
+      if (!contentEl) return;
+      const paragraphs = contentEl.querySelectorAll("p");
+      const target = paragraphs[highlightedParagraphIdx.current!];
+      if (target) target.classList.add("resume-highlight");
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [currentChapter, searchQuery, showSearch]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
@@ -219,6 +274,7 @@ export function ReaderView({ data }: ReaderViewProps) {
     setCurrentChapterIndex(index);
     setShowToc(false);
     if (containerRef.current) containerRef.current.scrollTop = 0;
+    highlightedParagraphIdx.current = null;
 
     const overall = totalChapters > 0
       ? Math.round((index / totalChapters) * 100)
