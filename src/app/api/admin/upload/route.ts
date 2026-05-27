@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Book from "@/models/Book";
 import Chapter from "@/models/Chapter";
-import { uploadBufferToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary";
+import { uploadBufferToCloudinary, deleteFromCloudinary, cloudinary } from "@/lib/cloudinary";
 import { parsePdfBuffer } from "@/lib/pdf-processor";
 import { calculateReadingTime } from "@/lib/utils";
 import { bookSchema } from "@/lib/validations";
@@ -11,8 +11,16 @@ import { bookSchema } from "@/lib/validations";
 export const maxDuration = 60;
 export const runtime = "nodejs";
 
-async function fetchPdfBuffer(url: string): Promise<Buffer> {
-  const response = await fetch(url);
+async function fetchPdfBuffer(url: string, publicId?: string): Promise<Buffer> {
+  let fetchUrl = url;
+  if (publicId) {
+    fetchUrl = cloudinary.utils.private_download_url(publicId, "pdf", {
+      resource_type: "raw",
+      type: "upload",
+      attachment: false,
+    });
+  }
+  const response = await fetch(fetchUrl);
   if (!response.ok) {
     throw new Error(`Failed to fetch PDF from Cloudinary: ${response.status}`);
   }
@@ -63,7 +71,7 @@ export async function POST(req: Request) {
 
     if (cloudinaryUrl) {
       // PDF already uploaded to Cloudinary by client - fetch it for processing
-      pdfBuffer = await fetchPdfBuffer(cloudinaryUrl);
+      pdfBuffer = await fetchPdfBuffer(cloudinaryUrl, cloudinaryPdfId || undefined);
       pdfSecureUrl = cloudinaryUrl;
       pdfPublicId = cloudinaryPdfId || `samtech-reader/pdfs/${cloudinaryUrl.split("/").pop()?.replace(/\.[^/.]+$/, "") || "unknown"}`;
     } else if (pdfFile && pdfFile.size > 0) {

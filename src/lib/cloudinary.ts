@@ -32,4 +32,5 @@ export async function deleteFromCloudinary(publicId: string) {
   return cloudinary.uploader.destroy(publicId);
 }
 
+export { cloudinary };
 export default cloudinary;
