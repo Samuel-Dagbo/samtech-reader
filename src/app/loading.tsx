@@ -1,13 +1,16 @@
-import { BookOpen, Loader2 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
+import { BookOpen } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+    <div className="relative flex flex-col items-center justify-center min-h-[60vh] gap-5">
+      <div className="absolute inset-0 section-shade" />
+      <div className="floating-orb w-96 h-96 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary/8 animate-pulse-glow" />
       <div className="relative">
-        <BookOpen className="h-12 w-12 text-primary/20" />
-        <Loader2 className="h-6 w-6 text-primary animate-spin absolute -top-1 -right-1" />
+        <Logo size="lg" showText={false} />
+        <div className="absolute -inset-3 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
       </div>
-      <p className="text-sm text-muted-foreground">Loading...</p>
+      <p className="text-sm text-muted-foreground font-medium">Loading your library…</p>
     </div>
   );
 }

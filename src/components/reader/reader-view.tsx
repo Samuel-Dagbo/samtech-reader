@@ -486,21 +486,28 @@ export function ReaderView({ data }: ReaderViewProps) {
       <div className="flex flex-1 overflow-hidden">
         {/* Table of Contents sidebar */}
         {showToc && (
-          <div className="w-64 border-r bg-background shrink-0 overflow-y-auto hidden md:block">
-            <div className="p-4">
-              <h3 className="font-semibold mb-3">Chapters</h3>
-              <div className="space-y-1">
+          <div className="w-72 border-r border-border/60 bg-card/50 backdrop-blur-sm shrink-0 overflow-y-auto hidden md:block">
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold tracking-tight">Chapters</h3>
+                <span className="text-xs text-muted-foreground font-mono">
+                  {currentChapterIndex + 1}/{totalChapters}
+                </span>
+              </div>
+              <div className="space-y-0.5">
                 {chapters.map((ch, i) => (
                   <button
                     key={ch._id}
                     onClick={() => goToChapter(i)}
-                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`group w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all ${
                       i === currentChapterIndex
                         ? "bg-primary/10 text-primary font-medium"
-                        : "hover:bg-muted text-muted-foreground"
+                        : "hover:bg-muted/60 text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <span className="text-xs opacity-60 mr-2">{ch.chapterNumber}.</span>
+                    <span className="text-[10px] font-mono opacity-60 mr-2">
+                      {String(ch.chapterNumber).padStart(2, "0")}
+                    </span>
                     {ch.title}
                   </button>
                 ))}
@@ -573,12 +580,14 @@ export function ReaderView({ data }: ReaderViewProps) {
             </div>
           )}
 
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12">
-            <div className="mb-6 sm:mb-8 text-center">
-              <h1 className="text-xl sm:text-2xl font-bold">{currentChapter.title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-16">
+            <div className="mb-8 sm:mb-10 text-center">
+              <p className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
                 Chapter {currentChapter.chapterNumber} of {totalChapters}
               </p>
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight">
+                {currentChapter.title}
+              </h1>
             </div>
 
             <div

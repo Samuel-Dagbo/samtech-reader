@@ -9,7 +9,10 @@ import ReadingProgress from "@/models/ReadingProgress";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, BookMarked, Layers, Plus, ArrowRight } from "lucide-react";
+import { StatCard } from "@/components/ui/stat-card";
+import { SectionLabel } from "@/components/ui/section";
+import { FadeUp } from "@/components/ui/motion";
+import { BookOpen, Users, BookMarked, Layers, Plus, ArrowRight, Upload, Activity } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - SamTech Reader",
@@ -33,83 +36,135 @@ export default async function AdminPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-10">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage your reading platform</p>
-        </div>
-        <Link href="/admin/books/new">
-          <Button className="gap-2 shadow-sm">
-            <Plus className="h-4 w-4" /> Upload Book
-          </Button>
-        </Link>
-      </div>
-
-      {/* Stats */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        {[
-          { title: "Total Books", value: totalBooks, icon: BookOpen, gradient: "from-blue-500/20 to-blue-500/5" },
-          { title: "Total Users", value: totalUsers, icon: Users, gradient: "from-green-500/20 to-green-500/5" },
-          { title: "Active Reads", value: totalReads, icon: BookMarked, gradient: "from-purple-500/20 to-purple-500/5" },
-          { title: "Total Chapters", value: totalChapters, icon: Layers, gradient: "from-orange-500/20 to-orange-500/5" },
-        ].map((stat) => (
-          <Card key={stat.title} className="border-border/60 shadow-sm hover:shadow-md transition-all">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-              <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${stat.gradient}`}>
-                <stat.icon className="h-4 w-4" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Recent Books */}
-      <Card className="border-border/60 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Recent Books</CardTitle>
-          <Link href="/admin/books">
-            <Button variant="ghost" size="sm" className="gap-1">
-              View All <ArrowRight className="h-3 w-3" />
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <FadeUp>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+          <div>
+            <SectionLabel>Admin panel</SectionLabel>
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">
+              Dashboard
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Manage your reading platform at a glance
+            </p>
+          </div>
+          <Link href="/admin/books/new">
+            <Button variant="gradient" className="gap-2 shadow-lg shadow-primary/25">
+              <Plus className="h-4 w-4" /> Upload book
             </Button>
           </Link>
-        </CardHeader>
-        <CardContent>
-          {recentBooks.length === 0 ? (
-            <div className="empty-state py-8">
-              <BookOpen />
-              <p className="text-base font-medium text-foreground/60">No books uploaded yet</p>
-              <Link href="/admin/books/new">
-                <Button variant="outline" size="sm" className="mt-4">Upload your first book</Button>
-              </Link>
+        </div>
+      </FadeUp>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+        <FadeUp delay={0.05}>
+          <StatCard
+            label="Total books"
+            value={totalBooks}
+            icon={BookOpen}
+            accent="primary"
+          />
+        </FadeUp>
+        <FadeUp delay={0.1}>
+          <StatCard
+            label="Total users"
+            value={totalUsers}
+            icon={Users}
+            accent="success"
+          />
+        </FadeUp>
+        <FadeUp delay={0.15}>
+          <StatCard
+            label="Active reads"
+            value={totalReads}
+            icon={BookMarked}
+            accent="info"
+          />
+        </FadeUp>
+        <FadeUp delay={0.2}>
+          <StatCard
+            label="Chapters"
+            value={totalChapters}
+            icon={Layers}
+            accent="warning"
+          />
+        </FadeUp>
+      </div>
+
+      <FadeUp delay={0.25}>
+        <Card className="border-border/60">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="h-4 w-4 text-primary" />
+                Recently uploaded
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Your latest additions to the library
+              </p>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {recentBooks.map((book) => (
-                <div key={book._id.toString()} className="flex items-center justify-between p-3 rounded-xl hover:bg-muted transition-all group">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5">
-                      <BookOpen className="h-4 w-4 text-primary" />
+            <Link href="/admin/books">
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+                View all <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {recentBooks.length === 0 ? (
+              <div className="empty-state py-12">
+                <Upload className="h-7 w-7" />
+                <p className="text-base font-medium text-foreground/60">No books yet</p>
+                <p className="text-sm text-muted-foreground mt-1">Upload your first book to get started</p>
+                <Link href="/admin/books/new" className="mt-5">
+                  <Button size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" /> Upload book
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentBooks.map((book) => (
+                  <div
+                    key={book._id.toString()}
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-muted transition-colors group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-12 w-9 rounded-md overflow-hidden shrink-0 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                        {book.coverImage ? (
+                          <img
+                            src={book.coverImage}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <BookOpen className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate group-hover:text-primary transition-colors">
+                          {book.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                          {book.author}
+                          <span className="mx-1.5 opacity-50">·</span>
+                          {book.totalChapters} chapters
+                          <span className="mx-1.5 opacity-50">·</span>
+                          {book.readingTime}m
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-medium truncate group-hover:text-primary transition-colors">{book.title}</p>
-                      <p className="text-sm text-muted-foreground truncate">{book.author} &middot; {book.totalChapters} chapters</p>
-                    </div>
+                    <Link href={`/admin/books/${book._id}/edit`}>
+                      <Button variant="ghost" size="sm" className="shrink-0 gap-1.5">
+                        Edit <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </Link>
                   </div>
-                  <Link href={`/admin/books/${book._id}/edit`}>
-                    <Button variant="ghost" size="sm" className="shrink-0">Edit</Button>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </FadeUp>
     </div>
   );
 }

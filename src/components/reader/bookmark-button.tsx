@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 interface BookmarkButtonProps {
   bookId: string;
@@ -14,7 +15,14 @@ interface BookmarkButtonProps {
   onToggle: () => void;
 }
 
-export function BookmarkButton({ bookId, chapterNumber, selectedText, isBookmarked, bookmarkId, onToggle }: BookmarkButtonProps) {
+export function BookmarkButton({
+  bookId,
+  chapterNumber,
+  selectedText,
+  isBookmarked,
+  bookmarkId,
+  onToggle,
+}: BookmarkButtonProps) {
   const [loading, setLoading] = useState(false);
 
   async function handleToggle() {
@@ -49,9 +57,16 @@ export function BookmarkButton({ bookId, chapterNumber, selectedText, isBookmark
   }
 
   return (
-    <Button variant="ghost" size="icon" onClick={handleToggle} disabled={loading} className="h-8 w-8">
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={handleToggle}
+      disabled={loading}
+      className={cn("h-8 w-8 rounded-lg", isBookmarked && "text-primary hover:text-primary")}
+      aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+    >
       {isBookmarked ? (
-        <BookmarkCheck className="h-4 w-4 text-primary" />
+        <BookmarkCheck className="h-4 w-4 fill-primary" />
       ) : (
         <Bookmark className="h-4 w-4" />
       )}

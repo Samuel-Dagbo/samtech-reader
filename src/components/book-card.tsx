@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Clock, User, ArrowRight } from "lucide-react";
+import { BookOpen, Clock, User, Play } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface BookCardProps {
@@ -23,92 +23,107 @@ interface BookCardProps {
 
 export function BookCard({ book, index = 0 }: BookCardProps) {
   const progress = book.readingProgress || 0;
-  const hasProgress = progress > 0;
+  const hasProgress = progress > 0 && progress < 100;
+  const isFinished = progress >= 100;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: index * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="h-full"
     >
-      <Link href={`/books/${book._id}`} className="block h-full">
-        <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1.5 h-full flex flex-col">
-          <div className="relative h-[300px] sm:h-[320px] bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 overflow-hidden shrink-0">
+      <Link href={`/books/${book._id}`} className="block h-full group">
+        <Card className="overflow-hidden h-full flex flex-col hover-lift bento-card border-border/60">
+          <div className="bento-card-shine" />
+          <div className="relative aspect-[3/4] bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 overflow-hidden shrink-0">
             {book.coverImage ? (
-              <>
-                <img
-                  src={book.coverImage}
-                  alt={book.title}
-                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </>
+              <img
+                src={book.coverImage}
+                alt={book.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-background">
                 <div className="text-center">
-                  <BookOpen className="h-16 w-16 text-primary/20 mx-auto mb-3" />
-                  <p className="text-sm text-primary/20 font-medium">No Cover</p>
+                  <BookOpen className="h-14 w-14 text-primary/20 mx-auto mb-2" />
+                  <p className="text-xs text-primary/30 font-medium">No cover</p>
                 </div>
               </div>
             )}
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
             {book.genre && (
-              <Badge className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm border-0 shadow-sm text-xs font-medium">
+              <Badge
+                variant="glass"
+                className="absolute top-3 left-3 text-[11px] font-medium backdrop-blur-md"
+              >
                 {book.genre}
               </Badge>
             )}
-            {hasProgress && (
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent px-4 pt-8 pb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-foreground">{Math.round(progress)}% complete</span>
-                  <span className="text-[11px] text-muted-foreground/80">{progress >= 100 ? "Finished" : "Reading"}</span>
-                </div>
-                <div className="h-2 bg-background/30 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-700"
-                    style={{ width: `${Math.round(progress)}%` }}
-                  />
+
+            {(hasProgress || isFinished) && (
+              <div className="absolute top-3 right-3">
+                <div className="flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur-md border border-border/60 pl-1 pr-2.5 py-1 shadow-sm">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+                  </span>
+                  <span className="text-[10px] font-semibold text-foreground">
+                    {isFinished ? "Finished" : `${Math.round(progress)}%`}
+                  </span>
                 </div>
               </div>
             )}
+
+            <div className="absolute inset-x-0 bottom-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+              <div className="flex items-center justify-center gap-1.5 rounded-xl bg-primary text-primary-foreground py-2.5 text-sm font-semibold shadow-lg shadow-primary/30">
+                <Play className="h-3.5 w-3.5 fill-current" />
+                {hasProgress ? "Continue" : "Read now"}
+              </div>
+            </div>
           </div>
-          <CardContent className="p-5 sm:p-6 flex flex-col gap-3 flex-1">
-            <div className="space-y-1.5">
-              <h3 className="text-base sm:text-lg font-semibold leading-tight group-hover:text-primary transition-colors line-clamp-2">
+
+          <CardContent className="p-5 flex flex-col gap-3 flex-1">
+            <div className="space-y-1.5 min-h-0">
+              <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">
                 {book.title}
               </h3>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <User className="h-3.5 w-3.5 shrink-0" />
+                <User className="h-3 w-3 shrink-0" />
                 <span className="line-clamp-1">{book.author}</span>
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground/70 line-clamp-3 leading-relaxed flex-1">
+            <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed flex-1">
               {book.description}
             </p>
 
-            {/* Progress bar — always visible */}
-            <div className="mt-auto pt-3 border-t border-border/50">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <BookOpen className="h-3.5 w-3.5" />
-                  <span>{book.totalChapters} chapters</span>
-                  <span className="text-muted-foreground/40">&middot;</span>
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>{book.readingTime} min</span>
+            <div className="mt-auto pt-3.5 border-t border-border/60 space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="h-3 w-3" />
+                    {book.totalChapters}
+                  </span>
+                  <span className="text-muted-foreground/40">·</span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {book.readingTime}m
+                  </span>
                 </div>
-                <span className={`text-xs font-medium ${hasProgress ? "text-primary" : "text-muted-foreground/40"}`}>
-                  {hasProgress ? `${Math.round(progress)}%` : "Not started"}
-                </span>
               </div>
-              <div className="h-2 bg-muted/60 rounded-full overflow-hidden">
+              <div className="h-1 bg-muted rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${
-                    hasProgress
+                    isFinished
+                      ? "bg-success"
+                      : hasProgress
                       ? "bg-gradient-to-r from-primary/70 to-primary"
-                      : "bg-transparent"
+                      : "bg-muted-foreground/20"
                   }`}
-                  style={{ width: hasProgress ? `${Math.round(progress)}%` : "0%" }}
+                  style={{ width: `${Math.min(100, Math.round(progress))}%` }}
                 />
               </div>
             </div>
