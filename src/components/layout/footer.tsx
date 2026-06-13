@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
-import { Mail, ArrowUpRight } from "lucide-react";
+import { Mail, ArrowUpRight, Sparkles, MessageCircle } from "lucide-react";
 
 const linkSections = [
   {
@@ -8,7 +8,7 @@ const linkSections = [
     links: [
       { label: "Browse Books", href: "/books" },
       { label: "Dashboard", href: "/dashboard" },
-      { label: "Bookmarks", href: "/dashboard/bookmarks" },
+      { label: "My Bookmarks", href: "/dashboard/bookmarks" },
     ],
   },
   {
@@ -29,13 +29,21 @@ const linkSections = [
   },
 ];
 
+const socials = [
+  { href: "mailto:support@samtech.com", label: "Email", icon: Mail },
+  { href: "#", label: "Chat", icon: MessageCircle },
+  { href: "#", label: "Community", icon: Sparkles },
+];
+
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-border/60 bg-muted/30 mt-auto">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="relative border-t border-border/60 bg-muted/20 mt-auto overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <div className="grid grid-cols-2 md:grid-cols-12 gap-10">
           <div className="col-span-2 md:col-span-5">
             <Logo size="md" />
@@ -45,27 +53,16 @@ export function Footer() {
             </p>
 
             <div className="mt-6 flex items-center gap-2">
-              <Link
-                href="mailto:support@samtech.com"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                aria-label="Email"
-              >
-                <Mail className="h-4 w-4" />
-              </Link>
-              <Link
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                aria-label="X / Twitter"
-              >
-                <span className="text-sm font-bold">𝕏</span>
-              </Link>
-              <Link
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                aria-label="GitHub"
-              >
-                <span className="text-sm font-bold">GH</span>
-              </Link>
+              {socials.map((s) => (
+                <Link
+                  key={s.label}
+                  href={s.href}
+                  className="group flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-accent/50 transition-all"
+                  aria-label={s.label}
+                >
+                  <s.icon className="h-4 w-4 transition-transform group-hover:scale-110" />
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -88,28 +85,34 @@ export function Footer() {
             </div>
           ))}
 
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 flex flex-col gap-3">
+            <h3 className="text-sm font-semibold mb-1 text-foreground">Start</h3>
             <Link
               href="/register"
-              className="group flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+              className="group inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
             >
-              Start reading free
-              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <Sparkles className="h-3.5 w-3.5" />
+              Get started free
             </Link>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Free forever.<br />No credit card.
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-border/60">
+      <div className="relative border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
             &copy; {year} SamTech Reader. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="font-mono">Built with</span>
-            <span className="px-1.5 py-0.5 rounded bg-background/60 border border-border/60">Next.js</span>
-            <span className="px-1.5 py-0.5 rounded bg-background/60 border border-border/60">Cloudinary</span>
-            <span className="px-1.5 py-0.5 rounded bg-background/60 border border-border/60">MongoDB</span>
+            {["Next.js", "Cloudinary", "MongoDB"].map((t) => (
+              <span key={t} className="px-2 py-0.5 rounded-md bg-background/60 border border-border/60 font-mono">
+                {t}
+              </span>
+            ))}
           </div>
         </div>
       </div>

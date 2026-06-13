@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { SectionLabel } from "@/components/ui/section";
-import { FadeUp } from "@/components/ui/motion";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/ui/motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
-import { BookOpen, BookMarked, Clock, TrendingUp, ArrowRight } from "lucide-react";
+import { BookOpen, BookMarked, Clock, TrendingUp, ArrowRight, Flame, Quote } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Dashboard - SamTech Reader",
@@ -40,10 +41,7 @@ export default async function DashboardPage() {
 
   const totalProgress = recentProgress.reduce((sum, p) => sum + (p.percentage || 0), 0);
   const avgProgress = recentProgress.length > 0 ? Math.round(totalProgress / recentProgress.length) : 0;
-  const totalChapters = recentProgress.reduce((s, p) => {
-    const book = p.bookId as unknown as { totalChapters?: number };
-    return s + (book?.totalChapters || 0);
-  }, 0);
+  const finishedCount = recentProgress.filter((p) => p.percentage >= 100).length;
   const greeting = (() => {
     const h = new Date().getHours();
     if (h < 5) return "Burning the midnight oil";
@@ -51,6 +49,7 @@ export default async function DashboardPage() {
     if (h < 18) return "Good afternoon";
     return "Good evening";
   })();
+  const firstName = session.user.name?.split(" ")[0] ?? "Reader";
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
@@ -58,8 +57,8 @@ export default async function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <SectionLabel>Dashboard</SectionLabel>
-            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">
-              {greeting}, {session.user.name?.split(" ")[0] ?? "Reader"}
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
+              {greeting}, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="mt-2 text-muted-foreground">
               {recentProgress.length > 0
@@ -76,66 +75,70 @@ export default async function DashboardPage() {
       </FadeUp>
 
       {recentProgress.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <FadeUp delay={0.05}>
+        <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <StaggerItem>
             <StatCard
               label="Books in progress"
               value={recentProgress.length}
               icon={BookOpen}
               accent="primary"
             />
-          </FadeUp>
-          <FadeUp delay={0.1}>
+          </StaggerItem>
+          <StaggerItem>
             <StatCard
               label="Average progress"
               value={`${avgProgress}%`}
               icon={TrendingUp}
               accent="success"
             />
-          </FadeUp>
-          <FadeUp delay={0.15}>
+          </StaggerItem>
+          <StaggerItem>
             <StatCard
               label="Bookmarks"
               value={bookmarks.length}
               icon={BookMarked}
               accent="info"
             />
-          </FadeUp>
-          <FadeUp delay={0.2}>
+          </StaggerItem>
+          <StaggerItem>
             <StatCard
-              label="Chapters available"
-              value={totalChapters}
-              icon={Clock}
+              label="Books finished"
+              value={finishedCount}
+              icon={Flame}
               accent="warning"
             />
-          </FadeUp>
-        </div>
+          </StaggerItem>
+        </StaggerContainer>
       )}
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <FadeUp delay={0.25} className="lg:col-span-3">
+        <FadeUp delay={0.1} className="lg:col-span-3">
           <Card className="border-border/60 h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Clock className="h-4 w-4 text-primary" />
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                    <Clock className="h-3.5 w-3.5 text-primary" />
+                  </div>
                   Continue reading
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1.5">
                   Pick up exactly where you left off
                 </p>
               </div>
             </CardHeader>
             <CardContent>
               {recentProgress.length === 0 ? (
-                <div className="empty-state py-12">
-                  <BookOpen />
-                  <p className="text-base font-medium text-foreground/60">No books in progress</p>
-                  <p className="text-sm text-muted-foreground mt-1">Start your first book today</p>
-                  <Link href="/books" className="mt-5">
-                    <Button size="sm">Browse library</Button>
-                  </Link>
-                </div>
+                <EmptyState
+                  icon={BookOpen}
+                  title="No books in progress"
+                  description="Start your first book today and build a reading habit."
+                  action={
+                    <Link href="/books">
+                      <Button size="sm">Browse library</Button>
+                    </Link>
+                  }
+                />
               ) : (
                 <div className="space-y-2">
                   {recentProgress.map((p) => {
@@ -144,9 +147,9 @@ export default async function DashboardPage() {
                       <Link
                         key={p._id.toString()}
                         href={`/reader/${book._id}`}
-                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted transition-colors group"
+                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/60 transition-colors group"
                       >
-                        <div className="flex h-12 w-9 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+                        <div className="flex h-14 w-10 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 border border-border/60">
                           {book.coverImage ? (
                             <img src={book.coverImage} alt="" className="h-full w-full object-cover" />
                           ) : (
@@ -160,7 +163,7 @@ export default async function DashboardPage() {
                           <p className="text-xs text-muted-foreground mt-0.5">
                             Chapter {p.currentChapter}
                             {book.totalChapters ? ` of ${book.totalChapters}` : ""}
-                            <span className="text-muted-foreground/50 mx-1">·</span>
+                            <span className="text-muted-foreground/50 mx-1.5">·</span>
                             {Math.round(p.percentage)}% complete
                           </p>
                         </div>
@@ -182,15 +185,17 @@ export default async function DashboardPage() {
           </Card>
         </FadeUp>
 
-        <FadeUp delay={0.3} className="lg:col-span-2">
+        <FadeUp delay={0.15} className="lg:col-span-2">
           <Card className="border-border/60 h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <BookMarked className="h-4 w-4 text-primary" />
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-info/10">
+                    <BookMarked className="h-3.5 w-3.5 text-info" />
+                  </div>
                   Recent bookmarks
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1.5">
                   Your saved highlights
                 </p>
               </div>
@@ -204,11 +209,12 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               {bookmarks.length === 0 ? (
-                <div className="empty-state py-10">
-                  <BookMarked />
-                  <p className="text-sm font-medium text-foreground/60">No bookmarks yet</p>
-                  <p className="text-xs text-muted-foreground mt-1">Start reading to save highlights</p>
-                </div>
+                <EmptyState
+                  icon={BookMarked}
+                  title="No bookmarks yet"
+                  description="Start reading to save highlights and quotes."
+                  className="py-10"
+                />
               ) : (
                 <div className="space-y-3.5">
                   {bookmarks.map((b) => {
@@ -217,7 +223,7 @@ export default async function DashboardPage() {
                       <Link
                         key={b._id.toString()}
                         href={`/reader/${(b as { bookId: unknown }).bookId}`}
-                        className="block group"
+                        className="block group p-2.5 -mx-2.5 rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex gap-2.5">
                           <Quote className="h-4 w-4 text-primary/40 shrink-0 mt-0.5" />
@@ -226,7 +232,7 @@ export default async function DashboardPage() {
                               &ldquo;{b.text.slice(0, 100)}{b.text.length > 100 ? "…" : ""}&rdquo;
                             </p>
                             <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
-                              <span className="font-medium">{book?.title || "Unknown"}</span>
+                              <span className="font-medium text-foreground">{book?.title || "Unknown"}</span>
                               <span>·</span>
                               <span>Ch {b.chapterNumber}</span>
                             </p>
@@ -242,13 +248,5 @@ export default async function DashboardPage() {
         </FadeUp>
       </div>
     </div>
-  );
-}
-
-function Quote({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 21c3-2 5-5.5 5-10V5H3v6h3c0 3-1.5 5-3 6v4zm10 0c3-2 5-5.5 5-10V5h-5v6h3c0 3-1.5 5-3 6v4z" />
-    </svg>
   );
 }

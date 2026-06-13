@@ -2,6 +2,9 @@
 
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export function FadeUp({
   children,
@@ -9,13 +12,18 @@ export function FadeUp({
   delay = 0,
   y = 24,
   ...props
-}: { children: React.ReactNode; delay?: number; y?: number; className?: string } & HTMLMotionProps<"div">) {
+}: {
+  children: ReactNode;
+  delay?: number;
+  y?: number;
+  className?: string;
+} & Omit<HTMLMotionProps<"div">, "children" | "className">) {
   return (
     <motion.div
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, ease: EASE, delay }}
       className={cn(className)}
       {...props}
     >
@@ -29,13 +37,41 @@ export function FadeIn({
   className,
   delay = 0,
   ...props
-}: { children: React.ReactNode; delay?: number; className?: string } & HTMLMotionProps<"div">) {
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+} & Omit<HTMLMotionProps<"div">, "children" | "className">) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, delay, ease: EASE }}
+      className={cn(className)}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function ScaleIn({
+  children,
+  className,
+  delay = 0,
+  ...props
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+} & Omit<HTMLMotionProps<"div">, "children" | "className">) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, delay, ease: EASE }}
       className={cn(className)}
       {...props}
     >
@@ -49,7 +85,7 @@ export function StaggerContainer({
   className,
   delay = 0.08,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   delay?: number;
 }) {
@@ -57,7 +93,7 @@ export function StaggerContainer({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "-80px" }}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: delay } },
@@ -74,7 +110,7 @@ export function StaggerItem({
   className,
   y = 20,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   y?: number;
 }) {
@@ -82,7 +118,7 @@ export function StaggerItem({
     <motion.div
       variants={{
         hidden: { opacity: 0, y },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
       }}
       className={cn(className)}
     >
@@ -91,12 +127,12 @@ export function StaggerItem({
   );
 }
 
-export function HeroMotion({ children, className }: { children: React.ReactNode; className?: string }) {
+export function HeroMotion({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.9, ease: EASE }}
       className={cn(className)}
     >
       {children}

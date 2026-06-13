@@ -1,10 +1,13 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   as?: "section" | "div" | "main" | "article";
   container?: boolean;
   containerClassName?: string;
-  pad?: "sm" | "md" | "lg" | "xl";
+  pad?: "sm" | "md" | "lg" | "xl" | "none";
+  children: ReactNode;
 }
 
 export function Section({
@@ -17,6 +20,7 @@ export function Section({
   ...props
 }: SectionProps) {
   const padClass = {
+    none: "",
     sm: "py-12 sm:py-16",
     md: "py-16 sm:py-20",
     lg: "py-20 sm:py-28",
@@ -26,7 +30,7 @@ export function Section({
   return (
     <Tag className={cn("relative px-4 sm:px-6 lg:px-8", padClass, className)} {...props}>
       {container ? (
-        <div className={cn("mx-auto max-w-6xl", containerClassName)}>{children}</div>
+        <div className={cn("mx-auto max-w-7xl", containerClassName)}>{children}</div>
       ) : (
         children
       )}
@@ -34,15 +38,15 @@ export function Section({
   );
 }
 
-export function SectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+export function SectionLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground",
+        "inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary",
         className
       )}
     >
-      <span className="h-px w-6 bg-border" />
+      <span className="h-px w-6 bg-gradient-to-r from-primary to-primary/30" />
       {children}
     </div>
   );
@@ -53,11 +57,13 @@ export function SectionHeading({
   description,
   align = "center",
   className,
+  eyebrow,
 }: {
-  title: React.ReactNode;
-  description?: React.ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
   align?: "center" | "left";
   className?: string;
+  eyebrow?: ReactNode;
 }) {
   return (
     <div
@@ -67,11 +73,12 @@ export function SectionHeading({
         className
       )}
     >
-      <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
+      {eyebrow && <div className="mb-4">{eyebrow}</div>}
+      <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05] text-balance">
         {title}
       </h2>
       {description && (
-        <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
+        <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed text-pretty">
           {description}
         </p>
       )}

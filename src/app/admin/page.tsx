@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
 import { SectionLabel } from "@/components/ui/section";
-import { FadeUp } from "@/components/ui/motion";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 import { BookOpen, Users, BookMarked, Layers, Plus, ArrowRight, Upload, Activity } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - SamTech Reader",
@@ -41,7 +42,7 @@ export default async function AdminPage() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <SectionLabel>Admin panel</SectionLabel>
-            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
               Dashboard
             </h1>
             <p className="mt-2 text-muted-foreground">
@@ -49,57 +50,59 @@ export default async function AdminPage() {
             </p>
           </div>
           <Link href="/admin/books/new">
-            <Button variant="gradient" className="gap-2 shadow-lg shadow-primary/25">
+            <Button className="gap-2 shadow-lg shadow-primary/25">
               <Plus className="h-4 w-4" /> Upload book
             </Button>
           </Link>
         </div>
       </FadeUp>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
-        <FadeUp delay={0.05}>
+      <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+        <StaggerItem>
           <StatCard
             label="Total books"
             value={totalBooks}
             icon={BookOpen}
             accent="primary"
           />
-        </FadeUp>
-        <FadeUp delay={0.1}>
+        </StaggerItem>
+        <StaggerItem>
           <StatCard
             label="Total users"
             value={totalUsers}
             icon={Users}
             accent="success"
           />
-        </FadeUp>
-        <FadeUp delay={0.15}>
+        </StaggerItem>
+        <StaggerItem>
           <StatCard
             label="Active reads"
             value={totalReads}
             icon={BookMarked}
             accent="info"
           />
-        </FadeUp>
-        <FadeUp delay={0.2}>
+        </StaggerItem>
+        <StaggerItem>
           <StatCard
             label="Chapters"
             value={totalChapters}
             icon={Layers}
             accent="warning"
           />
-        </FadeUp>
-      </div>
+        </StaggerItem>
+      </StaggerContainer>
 
-      <FadeUp delay={0.25}>
+      <FadeUp delay={0.2}>
         <Card className="border-border/60">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Activity className="h-4 w-4 text-primary" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                  <Activity className="h-3.5 w-3.5 text-primary" />
+                </div>
                 Recently uploaded
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1.5">
                 Your latest additions to the library
               </p>
             </div>
@@ -111,25 +114,28 @@ export default async function AdminPage() {
           </CardHeader>
           <CardContent>
             {recentBooks.length === 0 ? (
-              <div className="empty-state py-12">
-                <Upload className="h-7 w-7" />
-                <p className="text-base font-medium text-foreground/60">No books yet</p>
-                <p className="text-sm text-muted-foreground mt-1">Upload your first book to get started</p>
-                <Link href="/admin/books/new" className="mt-5">
-                  <Button size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" /> Upload book
-                  </Button>
-                </Link>
-              </div>
+              <EmptyState
+                icon={Upload}
+                title="No books yet"
+                description="Upload your first book to get started."
+                action={
+                  <Link href="/admin/books/new">
+                    <Button size="sm" className="gap-2">
+                      <Plus className="h-4 w-4" /> Upload book
+                    </Button>
+                  </Link>
+                }
+                className="py-12"
+              />
             ) : (
               <div className="space-y-2">
                 {recentBooks.map((book) => (
                   <div
                     key={book._id.toString()}
-                    className="flex items-center justify-between p-3 rounded-xl hover:bg-muted transition-colors group"
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/60 transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-12 w-9 rounded-md overflow-hidden shrink-0 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                      <div className="h-14 w-10 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center border border-border/60">
                         {book.coverImage ? (
                           <img
                             src={book.coverImage}

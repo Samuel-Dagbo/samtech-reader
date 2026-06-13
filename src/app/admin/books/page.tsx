@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SectionLabel } from "@/components/ui/section";
 import { FadeUp } from "@/components/ui/motion";
-import { Plus, Pencil, BookOpen, Library } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Plus, Pencil, BookOpen, Library, Search } from "lucide-react";
 import { DeleteBookButton } from "./delete-button";
+import { Input } from "@/components/ui/input";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +27,7 @@ export default async function AdminBooksPage() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <SectionLabel>Library management</SectionLabel>
-            <h1 className="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">
               All books
             </h1>
             <p className="mt-2 text-muted-foreground">
@@ -33,7 +35,7 @@ export default async function AdminBooksPage() {
             </p>
           </div>
           <Link href="/admin/books/new">
-            <Button variant="gradient" className="gap-2 shadow-lg shadow-primary/25">
+            <Button className="gap-2 shadow-lg shadow-primary/25">
               <Plus className="h-4 w-4" /> Add book
             </Button>
           </Link>
@@ -44,22 +46,31 @@ export default async function AdminBooksPage() {
         <Card className="border-border/60">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Library className="h-4 w-4 text-primary" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                <Library className="h-3.5 w-3.5 text-primary" />
+              </div>
               Library catalog
             </CardTitle>
+            <div className="relative hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input placeholder="Search..." className="h-8 pl-9 w-48 text-xs" />
+            </div>
           </CardHeader>
           <CardContent>
             {books.length === 0 ? (
-              <div className="empty-state py-14">
-                <BookOpen className="h-7 w-7" />
-                <p className="text-base font-medium text-foreground/60">No books yet</p>
-                <p className="text-sm text-muted-foreground mt-1">Upload your first book to get started</p>
-                <Link href="/admin/books/new" className="mt-5">
-                  <Button size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" /> Upload book
-                  </Button>
-                </Link>
-              </div>
+              <EmptyState
+                icon={BookOpen}
+                title="No books yet"
+                description="Upload your first book to get started."
+                action={
+                  <Link href="/admin/books/new">
+                    <Button size="sm" className="gap-2">
+                      <Plus className="h-4 w-4" /> Upload book
+                    </Button>
+                  </Link>
+                }
+                className="py-12"
+              />
             ) : (
               <div className="divide-y divide-border/60">
                 {books.map((book) => (
@@ -68,7 +79,7 @@ export default async function AdminBooksPage() {
                     className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 first:pt-0 last:pb-0 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-14 w-10 rounded-md overflow-hidden shrink-0 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                      <div className="h-16 w-11 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center border border-border/60">
                         {book.coverImage ? (
                           <img
                             src={book.coverImage}

@@ -5,11 +5,12 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { motion, AnimatePresence } from "framer-motion";
 import { ReadingProgressBar } from "./reading-progress";
 import { FontControls } from "./font-controls";
 import { BookmarkButton } from "./bookmark-button";
 import {
-  ChevronLeft, ChevronRight, List, Search, X,
+  ChevronLeft, ChevronRight, List, Search, X, BookOpen,
 } from "lucide-react";
 import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/navigation";
@@ -86,12 +87,10 @@ export function ReaderView({ data }: ReaderViewProps) {
   const bookId = data.book._id;
   const chapters = data.chapters;
 
-  // Save font size on change
   useEffect(() => {
     localStorage.setItem("samtech-font-size", String(fontSize));
   }, [fontSize]);
 
-  // Restore saved scroll position and show visual marker
   useEffect(() => {
     const savedScroll = data.progress?.scrollPosition;
     if (savedScroll && containerRef.current) {
@@ -102,7 +101,6 @@ export function ReaderView({ data }: ReaderViewProps) {
         if (containerRef.current) {
           containerRef.current.scrollTop = savedScroll;
         }
-        // Highlight the paragraph at the saved scroll position
         requestAnimationFrame(() => {
           if (!containerRef.current) return;
           const contentEl = containerRef.current.querySelector(".prose-reading");
@@ -125,10 +123,8 @@ export function ReaderView({ data }: ReaderViewProps) {
             paragraphs[closestIdx].classList.add("resume-highlight");
           }
         });
-        // Fade marker after 6s
         setTimeout(() => setMarkerOffset(null), 6000);
       }, 100);
-      // Hide badge after 3.5s
       setTimeout(() => setShowResumeBadge(false), 3500);
     }
     initialScrollRestored.current = true;
@@ -158,7 +154,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     } catch { }
   }, [bookId, chapters, session, totalChapters]);
 
-  // Auto-hide header on scroll
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -177,7 +172,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => el.removeEventListener("scroll", handleScrollDirection);
   }, [currentChapter]);
 
-  // Track scroll for progress + auto-save + clear paragraph highlight
   useEffect(() => {
     if (!currentChapter) return;
 
@@ -188,7 +182,6 @@ export function ReaderView({ data }: ReaderViewProps) {
       const chapterPct = maxScroll > 0 ? Math.round((scrollTop / maxScroll) * 100) : 0;
       setPercentage(chapterPct);
 
-      // Clear paragraph highlight when user scrolls far from it
       if (highlightedParagraphIdx.current !== null) {
         const contentEl = containerRef.current.querySelector(".prose-reading");
         if (contentEl) {
@@ -221,7 +214,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => el?.removeEventListener("scroll", handleScroll);
   }, [currentChapter, currentChapterIndex, saveProgress, totalChapters]);
 
-  // Save on page unload using sendBeacon for reliability
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (!containerRef.current || !session?.user?.id) return;
@@ -249,7 +241,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [currentChapter, currentChapterIndex, session, bookId, totalChapters]);
 
-  // Re-apply paragraph highlight after content re-renders
   useEffect(() => {
     if (highlightedParagraphIdx.current === null) return;
     const rafId = requestAnimationFrame(() => {
@@ -262,7 +253,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => cancelAnimationFrame(rafId);
   }, [currentChapter, searchQuery, showSearch]);
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
@@ -282,7 +272,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     saveProgress(index, 0, 0, overall);
   }
 
-  // Keyboard shortcut for search
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === "f") {
@@ -299,7 +288,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showSearch]);
 
-  // Search within current chapter
   const searchResults = useMemo(() => {
     if (!searchQuery.trim() || !currentChapter) return [];
     const content = currentChapter.content.toLowerCase();
@@ -313,7 +301,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     return indices;
   }, [searchQuery, currentChapter]);
 
-  // Navigate search results
   function navigateSearch(direction: "next" | "prev") {
     if (searchResults.length === 0) return;
     const el = containerRef.current;
@@ -334,7 +321,6 @@ export function ReaderView({ data }: ReaderViewProps) {
     mark.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  // Highlight search results in content
   function getHighlightedContent(): string {
     if (!currentChapter) return "";
     if (!searchQuery.trim()) {
@@ -374,33 +360,36 @@ export function ReaderView({ data }: ReaderViewProps) {
   if (!currentChapter) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
-        <p className="text-muted-foreground">No chapters found</p>
+        <div className="text-center">
+          <BookOpen className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground">No chapters found</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
       <ReadingProgressBar percentage={overallPct} />
 
-      {/* Top bar */}
       <div
-        className={`border-b bg-background/95 backdrop-blur px-3 sm:px-4 py-2 flex items-center justify-between shrink-0 transition-transform duration-300 ${
+        className={`border-b border-border/60 bg-background/80 backdrop-blur-xl px-3 sm:px-4 py-2 flex items-center justify-between shrink-0 transition-transform duration-300 z-30 ${
           headerVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/books")}>
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Button variant="ghost" size="sm" onClick={() => router.push("/books")} className="shrink-0">
             <ChevronLeft className="h-4 w-4" />
             <span className="hidden sm:inline ml-1">Back</span>
           </Button>
           <Separator orientation="vertical" className="h-6" />
-          <div className="hidden sm:block">
+          <div className="hidden sm:block min-w-0">
             <p className="text-sm font-medium line-clamp-1">{data.book.title}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1">{data.book.author}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           {session?.user?.id && (
             <BookmarkButton
               bookId={bookId}
@@ -428,65 +417,78 @@ export function ReaderView({ data }: ReaderViewProps) {
           }}>
             <Search className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowToc(!showToc)} className="gap-1">
+          <Button variant="ghost" size="sm" onClick={() => setShowToc(!showToc)} className="gap-1.5 h-8">
             <List className="h-4 w-4" />
             <span className="hidden sm:inline">Chapters</span>
-            <span className="text-xs text-muted-foreground">
-              ({currentChapterIndex + 1}/{totalChapters})
+            <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
+              {currentChapterIndex + 1}/{totalChapters}
             </span>
           </Button>
           <FontControls fontSize={fontSize} setFontSize={setFontSize} />
         </div>
       </div>
 
-      {/* Search bar */}
-      {showSearch && (
-        <div className="border-b bg-muted/50 px-3 sm:px-4 py-2 flex items-center gap-2 shrink-0">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-          <Input
-            ref={searchInputRef}
-            placeholder="Search in this chapter..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") navigateSearch("next");
-              if (e.key === "Escape") {
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-b border-border/60 bg-muted/50 backdrop-blur overflow-hidden"
+          >
+            <div className="px-3 sm:px-4 py-2 flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+              <Input
+                ref={searchInputRef}
+                placeholder="Search in this chapter..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") navigateSearch("next");
+                  if (e.key === "Escape") {
+                    setShowSearch(false);
+                    setSearchQuery("");
+                  }
+                }}
+                className="h-8 flex-1"
+              />
+              {searchQuery && (
+                <span className="text-xs text-muted-foreground whitespace-nowrap font-mono">
+                  {searchResults.length > 0
+                    ? `${currentSearchIdx + 1}/${searchResults.length}`
+                    : "No results"}
+                </span>
+              )}
+              {searchResults.length > 0 && (
+                <>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigateSearch("prev")}>
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigateSearch("next")}>
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                </>
+              )}
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                 setShowSearch(false);
                 setSearchQuery("");
-              }
-            }}
-            className="h-8 flex-1"
-          />
-          {searchQuery && (
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {searchResults.length > 0
-                ? `${currentSearchIdx + 1}/${searchResults.length}`
-                : "No results"}
-            </span>
-          )}
-          {searchResults.length > 0 && (
-            <>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigateSearch("prev")}>
-                <ChevronLeft className="h-3 w-3" />
+              }}>
+                <X className="h-3 w-3" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigateSearch("next")}>
-                <ChevronRight className="h-3 w-3" />
-              </Button>
-            </>
-          )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
-            setShowSearch(false);
-            setSearchQuery("");
-          }}>
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Table of Contents sidebar */}
         {showToc && (
-          <div className="w-72 border-r border-border/60 bg-card/50 backdrop-blur-sm shrink-0 overflow-y-auto hidden md:block">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.25 }}
+            className="w-72 border-r border-border/60 bg-card/60 backdrop-blur-sm shrink-0 overflow-y-auto hidden md:block"
+          >
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold tracking-tight">Chapters</h3>
@@ -513,12 +515,16 @@ export function ReaderView({ data }: ReaderViewProps) {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* Mobile chapter drawer */}
         {showToc && (
-          <div className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
+          >
             <div className="p-4 h-full overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Chapters</h3>
@@ -543,29 +549,34 @@ export function ReaderView({ data }: ReaderViewProps) {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* Resume badge */}
-        {showResumeBadge && (
-          <div className="fixed top-20 right-4 z-50 animate-fade-in">
-            <div className="flex items-center gap-2 rounded-xl border bg-background/90 backdrop-blur-xl px-4 py-2.5 shadow-lg">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
-              <span className="text-sm font-medium">Resumed from last position</span>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {showResumeBadge && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="fixed top-20 right-4 z-50"
+            >
+              <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/90 backdrop-blur-xl px-4 py-2.5 shadow-lg">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                </span>
+                <span className="text-sm font-medium">Resumed from last position</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Reading area */}
         <div
           ref={containerRef}
           className="flex-1 overflow-y-auto outline-none relative"
           tabIndex={0}
         >
-          {/* Scroll position marker */}
           {markerOffset !== null && (
             <div
               ref={markerRef}
@@ -585,7 +596,7 @@ export function ReaderView({ data }: ReaderViewProps) {
               <p className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
                 Chapter {currentChapter.chapterNumber} of {totalChapters}
               </p>
-              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight">
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-balance">
                 {currentChapter.title}
               </h1>
             </div>
@@ -598,8 +609,7 @@ export function ReaderView({ data }: ReaderViewProps) {
               }}
             />
 
-            {/* Navigation */}
-            <div className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t">
+            <div className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-border/60">
               <div className="flex items-center justify-between gap-2">
                 <Button
                   variant="outline"
@@ -611,12 +621,11 @@ export function ReaderView({ data }: ReaderViewProps) {
                   <span className="hidden sm:inline">Previous</span>
                 </Button>
 
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground font-mono">
                   {Math.round(overallPct)}% complete
                 </span>
 
                 <Button
-                  variant="outline"
                   onClick={() => goToChapter(currentChapterIndex + 1)}
                   disabled={isLast}
                   className="gap-1 sm:gap-2 text-sm"

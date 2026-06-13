@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Logo } from "@/components/ui/logo";
 import toast from "react-hot-toast";
-import { Loader2, ArrowRight, Mail, Lock, User, Sparkles, Check } from "lucide-react";
+import { Loader2, ArrowRight, Mail, Lock, User, Check, Shield } from "lucide-react";
 
 export function RegisterForm() {
   const [loading, setLoading] = useState(false);
@@ -56,8 +56,8 @@ export function RegisterForm() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="text-center mb-8"
       >
-        <div className="inline-flex mb-5">
-          <Logo size="md" showText={false} />
+        <div className="inline-flex mb-6">
+          <Logo size="lg" showText={false} />
         </div>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
           Start reading free
@@ -73,7 +73,7 @@ export function RegisterForm() {
         transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       >
         <Card className="relative overflow-hidden border-border/60 shadow-xl shadow-black/[0.03] dark:shadow-black/30">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           <CardContent className="p-7">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
@@ -124,14 +124,16 @@ export function RegisterForm() {
                 </div>
               </div>
 
-              <ul className="text-xs text-muted-foreground space-y-1.5 pt-1">
+              <ul className="text-xs text-muted-foreground space-y-2 pt-1">
                 {[
                   "Unlimited book uploads",
                   "Sync across all your devices",
                   "Smart bookmarks and highlights",
                 ].map((benefit) => (
-                  <li key={benefit} className="flex items-center gap-2">
-                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <li key={benefit} className="flex items-center gap-2.5">
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/15">
+                      <Check className="h-2.5 w-2.5 text-primary" strokeWidth={3} />
+                    </div>
                     {benefit}
                   </li>
                 ))}
@@ -140,7 +142,6 @@ export function RegisterForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                variant="gradient"
                 size="lg"
                 className="w-full shadow-lg shadow-primary/25"
               >
@@ -170,7 +171,7 @@ export function RegisterForm() {
         </p>
 
         <div className="mt-8 flex items-center gap-2 justify-center text-xs text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <Shield className="h-3.5 w-3.5 text-primary" />
           <span>Free forever. No credit card required.</span>
         </div>
       </motion.div>

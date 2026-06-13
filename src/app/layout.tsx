@@ -25,18 +25,22 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SamTech Reader - Cloud Reading Platform",
-  description: "A modern cloud reading platform. Read books online, pick up where you left off.",
+  title: {
+    default: "SamTech Reader — Cloud Reading Platform",
+    template: "%s | SamTech Reader",
+  },
+  description: "A modern cloud reading platform. Upload your books, read across any device, and never lose your place with auto-saving progress.",
+  keywords: ["ebook reader", "cloud library", "online reading", "pdf reader", "bookmarks", "reading progress"],
   openGraph: {
-    title: "SamTech Reader - Cloud Reading Platform",
-    description: "A modern cloud reading platform. Read books online, pick up where you left off.",
+    title: "SamTech Reader — Cloud Reading Platform",
+    description: "A modern cloud reading platform. Read anywhere, never lose your page.",
     type: "website",
     siteName: "SamTech Reader",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SamTech Reader - Cloud Reading Platform",
-    description: "A modern cloud reading platform. Read books online, pick up where you left off.",
+    title: "SamTech Reader — Cloud Reading Platform",
+    description: "A modern cloud reading platform. Read anywhere, never lose your page.",
   },
 };
 
@@ -49,9 +53,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className={inter.className}>
         <Providers>
-          <div className="flex min-h-screen flex-col noise">
+          <div className="flex min-h-screen flex-col bg-background noise">
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 flex flex-col">{children}</main>
             <Footer />
           </div>
         </Providers>

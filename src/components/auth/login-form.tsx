@@ -36,7 +36,7 @@ export function LoginForm() {
         toast.error("Invalid email or password");
       } else {
         toast.success("Welcome back!");
-        router.push("/");
+        router.push("/dashboard");
         router.refresh();
       }
     } catch {
@@ -54,8 +54,8 @@ export function LoginForm() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="text-center mb-8"
       >
-        <div className="inline-flex mb-5">
-          <Logo size="md" showText={false} />
+        <div className="inline-flex mb-6">
+          <Logo size="lg" showText={false} />
         </div>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
           Welcome back
@@ -71,7 +71,7 @@ export function LoginForm() {
         transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       >
         <Card className="relative overflow-hidden border-border/60 shadow-xl shadow-black/[0.03] dark:shadow-black/30">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           <CardContent className="p-7">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
@@ -93,6 +93,9 @@ export function LoginForm() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-sm">Password</Label>
+                  <Link href="#" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                    Forgot?
+                  </Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -111,7 +114,6 @@ export function LoginForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                variant="gradient"
                 size="lg"
                 className="w-full shadow-lg shadow-primary/25"
               >

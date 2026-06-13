@@ -11,12 +11,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/ui/logo";
 import {
-  Sun, Moon, Menu, X, LogOut, User, Bookmark, LayoutDashboard, Home, BookOpen, Sparkles,
+  Sun, Moon, Menu, X, LogOut, Bookmark, LayoutDashboard, Home, BookOpen, Sparkles, Library, ChevronDown,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -44,28 +45,30 @@ export function Navbar() {
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/books", label: "Browse", icon: BookOpen },
+    { href: "/books", label: "Library", icon: BookOpen },
   ];
 
+  const initials = (session?.user?.name?.[0] || "U").toUpperCase();
+
   return (
-    <motion.nav
+    <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled
-          ? "border-b border-border/60 glass-strong shadow-sm"
+          ? "border-b border-border/60 glass-strong shadow-sm shadow-black/[0.02] dark:shadow-black/20"
           : "border-b border-transparent"
       )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-10">
-            <Link href="/" className="group">
+            <Link href="/" className="group flex items-center">
               <Logo size="sm" />
             </Link>
-            <div className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
@@ -82,7 +85,7 @@ export function Navbar() {
                   </Link>
                 );
               })}
-            </div>
+            </nav>
           </div>
 
           <div className="hidden md:flex items-center gap-1">
@@ -105,20 +108,21 @@ export function Navbar() {
                     className="ml-1 h-9 gap-2 rounded-full pl-1 pr-3 hover:bg-accent"
                   >
                     <Avatar className="h-7 w-7 ring-2 ring-background">
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-[11px] font-semibold">
-                        {session.user?.name?.[0]?.toUpperCase() || "U"}
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-[11px] font-bold">
+                        {initials}
                       </AvatarFallback>
                     </Avatar>
                     <span className="hidden lg:inline text-sm font-medium">
                       {session.user?.name?.split(" ")[0]}
                     </span>
+                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-60 mt-2 p-1.5">
+                <DropdownMenuContent align="end" className="w-64">
                   <div className="flex items-center gap-3 px-2.5 py-2.5 rounded-lg bg-muted/40 mb-1">
                     <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-semibold">
-                        {session.user?.name?.[0]?.toUpperCase() || "U"}
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-bold">
+                        {initials}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col min-w-0">
@@ -127,36 +131,37 @@ export function Navbar() {
                     </div>
                   </div>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer rounded-md">
-                      <LayoutDashboard className="mr-2.5 h-4 w-4" /> Dashboard
+                    <Link href="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard /> Dashboard
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/bookmarks" className="cursor-pointer rounded-md">
-                      <Bookmark className="mr-2.5 h-4 w-4" /> Bookmarks
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer rounded-md">
-                      <User className="mr-2.5 h-4 w-4" /> Profile
+                    <Link href="/dashboard/bookmarks" className="cursor-pointer">
+                      <Bookmark /> Bookmarks
                     </Link>
                   </DropdownMenuItem>
                   {session.user?.role === "admin" && (
                     <>
-                      <DropdownMenuSeparator className="my-1" />
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Admin</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link href="/admin" className="cursor-pointer rounded-md">
-                          <Sparkles className="mr-2.5 h-4 w-4" /> Admin Dashboard
+                        <Link href="/admin" className="cursor-pointer">
+                          <Sparkles /> Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/books" className="cursor-pointer">
+                          <Library /> Manage Books
                         </Link>
                       </DropdownMenuItem>
                     </>
                   )}
-                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => signOut()}
-                    className="cursor-pointer rounded-md text-destructive focus:text-destructive"
+                    className="cursor-pointer text-destructive focus:text-destructive"
                   >
-                    <LogOut className="mr-2.5 h-4 w-4" /> Sign out
+                    <LogOut /> Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -169,7 +174,7 @@ export function Navbar() {
                 </Link>
                 <Link href="/register">
                   <Button size="sm" className="h-9 px-4 shadow-sm shadow-primary/20">
-                    Get Started
+                    Get started
                   </Button>
                 </Link>
               </div>
@@ -202,11 +207,11 @@ export function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden border-t border-border/60 glass-strong"
+            initial={{ opacity: 0, y: -8, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -8, height: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="md:hidden border-t border-border/60 glass-strong overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
               {navItems.map((item) => {
@@ -261,9 +266,9 @@ export function Navbar() {
                   )}
                   <div className="my-2 h-px bg-border/60" />
                   <div className="flex items-center gap-3 px-3.5 py-2.5">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-semibold">
-                        {session.user?.name?.[0]?.toUpperCase() || "U"}
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-bold">
+                        {initials}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
@@ -294,7 +299,7 @@ export function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-lg text-sm font-semibold bg-primary text-primary-foreground shadow-sm"
                   >
-                    Get Started
+                    Get started
                   </Link>
                 </>
               )}
@@ -302,6 +307,6 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </motion.header>
   );
 }

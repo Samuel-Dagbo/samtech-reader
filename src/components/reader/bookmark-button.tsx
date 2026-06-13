@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface BookmarkButtonProps {
   bookId: string;
@@ -62,7 +62,10 @@ export function BookmarkButton({
       size="icon"
       onClick={handleToggle}
       disabled={loading}
-      className={cn("h-8 w-8 rounded-lg", isBookmarked && "text-primary hover:text-primary")}
+      className={cn(
+        "h-8 w-8 rounded-lg transition-colors",
+        isBookmarked && "text-primary hover:text-primary"
+      )}
       aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
     >
       {isBookmarked ? (

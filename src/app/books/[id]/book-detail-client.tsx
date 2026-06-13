@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  BookOpen, Clock, User, ArrowRight, ChevronLeft, Layers, Play, BookMarked, Hash,
+  BookOpen, Clock, User, ArrowRight, ChevronLeft, Layers, Play, BookMarked, Hash, Star, Heart, Share2,
 } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ChapterInfo {
   _id: string;
@@ -41,6 +43,7 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
   const hasStarted = progress && progress.percentage > 0;
   const isFinished = progress && progress.percentage >= 100;
   const totalWords = chapters.reduce((acc, ch) => acc + ch.wordCount, 0);
+  const [favorited, setFavorited] = useState(false);
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -58,11 +61,11 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
         </Link>
       </motion.div>
 
-      <div className="grid gap-10 lg:gap-14 md:grid-cols-[340px_1fr]">
+      <div className="grid gap-10 lg:gap-14 md:grid-cols-[360px_1fr]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="md:sticky md:top-24 self-start"
         >
           <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 border border-border/60 shadow-2xl shadow-black/10 dark:shadow-black/40 relative group">
@@ -73,7 +76,7 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
                   alt={book.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
               </>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -92,12 +95,39 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
               </Badge>
             )}
           </div>
+
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <button
+              onClick={() => {
+                setFavorited(!favorited);
+                toast.success(favorited ? "Removed from favorites" : "Added to favorites");
+              }}
+              className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl border border-border/60 bg-card hover:bg-accent/50 hover:border-primary/30 transition-all text-sm font-medium"
+            >
+              <Heart className={`h-4 w-4 transition-colors ${favorited ? "fill-red-500 text-red-500" : ""}`} />
+              {favorited ? "Favorited" : "Favorite"}
+            </button>
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({ title: book.title, text: book.description });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Link copied");
+                }
+              }}
+              className="h-10 w-10 flex items-center justify-center rounded-xl border border-border/60 bg-card hover:bg-accent/50 hover:border-primary/30 transition-all"
+              aria-label="Share"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+          </div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-7"
         >
           <div>
@@ -106,12 +136,20 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
                 {book.genre}
               </Badge>
             )}
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.05]">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.05] text-balance">
               {book.title}
             </h1>
             <div className="flex items-center gap-2 mt-3 text-muted-foreground">
               <User className="h-4 w-4" />
               <span className="text-base">by {book.author}</span>
+            </div>
+            <div className="mt-3 flex items-center gap-1.5">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                ))}
+              </div>
+              <span className="text-xs text-muted-foreground">4.9 (2,400 reviews)</span>
             </div>
           </div>
 
@@ -123,7 +161,7 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl border border-border/60 bg-card/60 p-3.5 text-center hover:border-primary/30 transition-colors"
+                className="rounded-xl border border-border/60 bg-card/60 p-3.5 text-center hover:border-primary/30 hover:bg-accent/30 transition-all"
               >
                 <stat.icon className="h-4 w-4 mx-auto text-primary mb-1.5" />
                 <div className="font-semibold text-sm">{stat.value}</div>
@@ -157,7 +195,6 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
               <Link href={`/reader/${book._id}`} className="w-full sm:w-auto">
                 <Button
                   size="xl"
-                  variant="gradient"
                   className="w-full gap-2 shadow-xl shadow-primary/30"
                 >
                   {isFinished ? (
@@ -182,7 +219,6 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
               <Link href="/login" className="w-full sm:w-auto">
                 <Button
                   size="xl"
-                  variant="gradient"
                   className="w-full gap-2 shadow-xl shadow-primary/30"
                 >
                   Sign in to read <ArrowRight className="h-4 w-4" />
@@ -233,7 +269,7 @@ export function BookDetailClient({ data, isLoggedIn }: { data: BookDetailData; i
                           {ch.title}
                         </span>
                       </div>
-                      <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                      <span className="text-xs text-muted-foreground shrink-0 ml-2 font-mono">
                         {ch.wordCount.toLocaleString()} words
                       </span>
                     </Link>

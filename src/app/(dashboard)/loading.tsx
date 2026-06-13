@@ -1,4 +1,5 @@
 import { Logo } from "@/components/ui/logo";
+import { LayoutDashboard } from "lucide-react";
 
 export default function DashboardLoading() {
   return (
@@ -7,7 +8,10 @@ export default function DashboardLoading() {
         <Logo size="md" showText={false} />
         <div className="absolute -inset-3 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
       </div>
-      <p className="text-sm text-muted-foreground">Loading your dashboard…</p>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+        <LayoutDashboard className="h-4 w-4" />
+        Loading your dashboard…
+      </div>
     </div>
   );
 }
