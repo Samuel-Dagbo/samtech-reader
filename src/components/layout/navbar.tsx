@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/ui/logo";
 import {
-  Sun, Moon, Menu, X, LogOut, Bookmark, LayoutDashboard, Home, BookOpen, Sparkles, Library, ChevronDown,
+  Sun, Moon, Menu, X, LogOut, Bookmark, LayoutDashboard, Home, BookOpen, Sparkles, Library, ChevronDown, Users, BarChart3,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -142,19 +142,29 @@ export function Navbar() {
                   </DropdownMenuItem>
                   {session.user?.role === "admin" && (
                     <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel>Admin</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin" className="cursor-pointer">
-                          <Sparkles /> Admin Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin/books" className="cursor-pointer">
-                          <Library /> Manage Books
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="cursor-pointer">
+                        <LayoutDashboard /> Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/books" className="cursor-pointer">
+                        <Library /> Manage Books
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/users" className="cursor-pointer">
+                        <Users /> Users
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/analytics" className="cursor-pointer">
+                        <BarChart3 /> Analytics
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -255,14 +265,44 @@ export function Navbar() {
                     Bookmarks
                   </Link>
                   {session.user?.role === "admin" && (
-                    <Link
-                      href="/admin"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      Admin
-                    </Link>
+                    <>
+                      <div className="my-2 h-px bg-border/60" />
+                      <p className="px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                        Admin
+                      </p>
+                      <Link
+                        href="/admin"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/admin/books"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <Library className="h-4 w-4" />
+                        Books
+                      </Link>
+                      <Link
+                        href="/admin/users"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <Users className="h-4 w-4" />
+                        Users
+                      </Link>
+                      <Link
+                        href="/admin/analytics"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        Analytics
+                      </Link>
+                    </>
                   )}
                   <div className="my-2 h-px bg-border/60" />
                   <div className="flex items-center gap-3 px-3.5 py-2.5">

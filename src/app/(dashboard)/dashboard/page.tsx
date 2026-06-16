@@ -24,7 +24,9 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let recentProgress: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let bookmarks: any[] = [];
   try {
     await dbConnect();
