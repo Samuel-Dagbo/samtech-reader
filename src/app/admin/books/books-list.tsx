@@ -72,7 +72,7 @@ export function BooksList({ books }: { books: BookItem[] }) {
           {filtered.length === 0 ? (
             books.length === 0 ? (
               <EmptyState
-                icon={BookOpen}
+                icon={<BookOpen className="h-7 w-7 text-primary" strokeWidth={1.75} />}
                 title="No books yet"
                 description="Upload your first book to get started."
                 action={
@@ -86,7 +86,7 @@ export function BooksList({ books }: { books: BookItem[] }) {
               />
             ) : (
               <EmptyState
-                icon={Search}
+                icon={<Search className="h-7 w-7 text-primary" strokeWidth={1.75} />}
                 title="No matches"
                 description={`No books match "${search}".`}
                 className="py-10"

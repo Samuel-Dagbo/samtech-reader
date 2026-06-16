@@ -48,7 +48,7 @@ export default async function BookmarksPage() {
       {bookmarks.length === 0 ? (
         <FadeUp delay={0.1}>
           <EmptyState
-            icon={BookMarked}
+            icon={<BookMarked className="h-7 w-7 text-primary" strokeWidth={1.75} />}
             title="No bookmarks yet"
             description="Start reading to save your favorite passages and quotes."
             action={

@@ -1,12 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
 interface EmptyStateProps {
-  icon?: LucideIcon;
+  icon?: ReactNode;
   title: string;
   description?: string;
   action?: ReactNode;
@@ -14,7 +13,7 @@ interface EmptyStateProps {
   variant?: "default" | "dashed" | "solid";
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className, variant = "default" }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, className, variant = "default" }: EmptyStateProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -28,9 +27,9 @@ export function EmptyState({ icon: Icon, title, description, action, className, 
         className
       )}
     >
-      {Icon && (
+      {icon && (
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-primary/10 mb-5">
-          <Icon className="h-7 w-7 text-primary" strokeWidth={1.75} />
+          {icon}
         </div>
       )}
       <h3 className="font-display text-lg sm:text-xl font-semibold tracking-tight text-foreground">

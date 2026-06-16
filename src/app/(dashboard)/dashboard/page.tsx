@@ -138,7 +138,7 @@ export default async function DashboardPage() {
             <CardContent>
               {recentProgress.length === 0 ? (
                 <EmptyState
-                  icon={BookOpen}
+                  icon={<BookOpen className="h-7 w-7 text-primary" strokeWidth={1.75} />}
                   title="No books in progress"
                   description="Start your first book today and build a reading habit."
                   action={
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
             <CardContent>
               {bookmarks.length === 0 ? (
                 <EmptyState
-                  icon={BookMarked}
+                  icon={<BookMarked className="h-7 w-7 text-primary" strokeWidth={1.75} />}
                   title="No bookmarks yet"
                   description="Start reading to save highlights and quotes."
                   className="py-10"

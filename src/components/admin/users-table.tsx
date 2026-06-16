@@ -153,7 +153,7 @@ export function UsersTable({
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={Users}
+          icon={<Users className="h-7 w-7 text-primary" strokeWidth={1.75} />}
           title="No users found"
           description={
             search || roleFilter !== "all"

@@ -196,7 +196,7 @@ export default async function AdminPage() {
             <CardContent>
               {recentBooks.length === 0 ? (
                 <EmptyState
-                  icon={Upload}
+                  icon={<Upload className="h-7 w-7 text-primary" strokeWidth={1.75} />}
                   title="No books yet"
                   description="Upload your first book to get started."
                   action={
@@ -301,7 +301,7 @@ function ActivityFeed({
   if (items.length === 0) {
     return (
       <EmptyState
-        icon={Activity}
+        icon={<Activity className="h-7 w-7 text-primary" strokeWidth={1.75} />}
         title="No activity yet"
         description="Signups, uploads, and reading activity will appear here."
         className="py-10"
