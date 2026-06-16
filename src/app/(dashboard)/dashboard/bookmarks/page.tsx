@@ -64,12 +64,13 @@ export default async function BookmarksPage() {
         <StaggerContainer className="space-y-3.5">
           {bookmarks.map((b) => {
             const book = b.bookId as unknown as { _id: unknown; title?: string; author?: string; coverImage?: string } | null;
+            if (!book) return null;
             return (
               <StaggerItem key={b._id.toString()}>
                 <Card className="border-border/60 hover-lift">
                   <CardContent className="p-5">
                     <Link
-                      href={`/reader/${book?._id || (b as { bookId: unknown }).bookId}`}
+                      href={`/reader/${book._id}`}
                       className="block group"
                     >
                       <div className="flex gap-4">

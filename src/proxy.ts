@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const pathname = req.nextUrl.pathname;
@@ -6,17 +7,17 @@ export default auth((req) => {
   const isAdmin = req.auth?.user?.role === "admin";
 
   if (pathname.startsWith("/admin") && !isAdmin) {
-    return Response.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   if (
     (pathname.startsWith("/dashboard") || pathname.startsWith("/reader")) &&
     !isLoggedIn
   ) {
-    return Response.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  return;
+  return NextResponse.next();
 });
 
 export const config = {

@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+import "@/models/Book";
+import "@/models/User";
+import "@/models/ReadingProgress";
+import "@/models/Bookmark";
+import "@/models/Chapter";
+
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {

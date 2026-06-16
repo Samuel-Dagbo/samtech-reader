@@ -142,7 +142,8 @@ export default async function DashboardPage() {
               ) : (
                 <div className="space-y-2">
                   {recentProgress.map((p) => {
-                    const book = p.bookId as unknown as { _id: unknown; title: string; author: string; coverImage?: string; totalChapters?: number };
+                    const book = p.bookId as unknown as { _id: unknown; title: string; author: string; coverImage?: string; totalChapters?: number } | null;
+                    if (!book) return null;
                     return (
                       <Link
                         key={p._id.toString()}
@@ -218,11 +219,12 @@ export default async function DashboardPage() {
               ) : (
                 <div className="space-y-3.5">
                   {bookmarks.map((b) => {
-                    const book = b.bookId as unknown as { title?: string } | null;
+                    const book = b.bookId as unknown as { _id: unknown; title?: string } | null;
+                    if (!book) return null;
                     return (
                       <Link
                         key={b._id.toString()}
-                        href={`/reader/${(b as { bookId: unknown }).bookId}`}
+                        href={`/reader/${book._id}`}
                         className="block group p-2.5 -mx-2.5 rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex gap-2.5">
