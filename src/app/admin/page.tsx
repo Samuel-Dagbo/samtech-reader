@@ -333,7 +333,7 @@ function ActivityFeed({
                 </p>
                 <p className="text-xs text-muted-foreground truncate">{item.data.email}</p>
               </div>
-              <span className="text-xs text-muted-foreground shrink-0 tabular-nums">{ago}</span>
+              <span className="text-xs text-muted-foreground shrink-0 whitespace-nowrap tabular-nums">{ago}</span>
             </div>
           );
         }
@@ -358,7 +358,7 @@ function ActivityFeed({
                 </p>
                 <p className="text-xs text-muted-foreground truncate">by {item.data.author}</p>
               </div>
-              <span className="text-xs text-muted-foreground shrink-0 tabular-nums">{ago}</span>
+              <span className="text-xs text-muted-foreground shrink-0 whitespace-nowrap tabular-nums">{ago}</span>
             </div>
           );
         }

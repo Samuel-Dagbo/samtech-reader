@@ -23,7 +23,7 @@ export function FontControls({ fontSize, setFontSize }: FontControlsProps) {
           <Type className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-5" align="end">
+      <PopoverContent className="w-[min(20rem,calc(100vw-2rem))] p-5" align="end">
         <div className="space-y-5">
           <div className="flex items-center gap-2">
             <Settings2 className="h-4 w-4 text-primary" />

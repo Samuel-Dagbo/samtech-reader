@@ -199,12 +199,12 @@ export function UsersTable({
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                    <span className="inline-flex items-center gap-1 truncate">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs text-muted-foreground mt-0.5">
+                    <span className="inline-flex items-center gap-1 truncate min-w-0">
                       <Mail className="h-3 w-3 shrink-0" />
                       <span className="truncate">{user.email}</span>
                     </span>
-                    <span className="shrink-0">Joined {formatDate(user.createdAt)}</span>
+                    <span className="shrink-0 whitespace-nowrap">Joined {formatDate(user.createdAt)}</span>
                   </div>
                 </div>
                 <div className="shrink-0">

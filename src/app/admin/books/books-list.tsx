@@ -124,7 +124,7 @@ export function BooksList({ books }: { books: BookItem[] }) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 sm:shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1.5 sm:shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <Link href={`/admin/books/${book._id}/edit`}>
                       <Button variant="ghost" size="sm" className="gap-1.5">
                         <Pencil className="h-3.5 w-3.5" />

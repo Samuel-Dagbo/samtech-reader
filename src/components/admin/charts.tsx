@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const accentBg: Record<string, string> = {
@@ -20,6 +21,7 @@ export function TimelineChart({
   accent?: keyof typeof accentBg;
   labelInterval?: number;
 }) {
+  const [activeIdx, setActiveIdx] = React.useState<number | null>(null);
   const max = Math.max(1, ...data.map((d) => d.value));
 
   return (
@@ -30,10 +32,14 @@ export function TimelineChart({
           return (
             <div
               key={i}
-              className="group flex-1 flex flex-col items-center justify-end min-w-0 h-full relative"
+              className="group flex-1 flex flex-col items-center justify-end min-w-0 h-full relative cursor-pointer"
               title={`${d.label}: ${d.value}`}
+              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
             >
-              <div className="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold bg-foreground text-background px-1.5 py-0.5 rounded pointer-events-none whitespace-nowrap z-10">
+              <div
+                className="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold bg-foreground text-background px-1.5 py-0.5 rounded pointer-events-none whitespace-nowrap z-10"
+                style={activeIdx === i ? { opacity: 1 } : undefined}
+              >
                 {d.value}
               </div>
               <motion.div
@@ -54,7 +60,7 @@ export function TimelineChart({
           );
         })}
       </div>
-      <div className="flex gap-[2px] mt-1.5 w-full">
+      <div className="hidden sm:flex gap-[2px] mt-1.5 w-full">
         {data.map((d, i) => (
           <div
             key={i}

@@ -241,10 +241,10 @@ export default async function DashboardPage() {
                             <p className="text-sm leading-relaxed text-foreground/90 line-clamp-3 group-hover:text-foreground transition-colors">
                               &ldquo;{b.text.slice(0, 100)}{b.text.length > 100 ? "…" : ""}&rdquo;
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
-                              <span className="font-medium text-foreground">{book?.title || "Unknown"}</span>
-                              <span>·</span>
-                              <span>Ch {b.chapterNumber}</span>
+                            <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5 min-w-0">
+                              <span className="font-medium text-foreground truncate min-w-0">{book?.title || "Unknown"}</span>
+                              <span className="shrink-0">·</span>
+                              <span className="shrink-0 whitespace-nowrap">Ch {b.chapterNumber}</span>
                             </p>
                           </div>
                         </div>
