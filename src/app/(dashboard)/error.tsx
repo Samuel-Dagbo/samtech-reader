@@ -5,7 +5,7 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function DashboardError({
-  error: _error,
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -27,6 +27,11 @@ export default function DashboardError({
         <p className="text-muted-foreground text-center max-w-md text-sm mt-2">
           Failed to load this page. Please try again.
         </p>
+        {error.digest && (
+          <p className="text-xs font-mono text-muted-foreground/60 mt-3 break-all max-w-md text-center">
+            ref: {error.digest}
+          </p>
+        )}
         <div className="flex justify-center mt-5">
           <Button onClick={reset} className="gap-2 shadow-lg shadow-primary/25">
             <RefreshCw className="h-4 w-4" /> Try again

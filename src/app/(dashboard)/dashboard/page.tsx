@@ -24,20 +24,26 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  await dbConnect();
-
-  const [recentProgress, bookmarks] = await Promise.all([
-    ReadingProgress.find({ userId: session.user.id, percentage: { $gt: 0 } })
-      .sort({ lastReadAt: -1 })
-      .limit(10)
-      .populate("bookId", "title author coverImage totalChapters")
-      .lean(),
-    Bookmark.find({ userId: session.user.id })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .populate("bookId", "title")
-      .lean(),
-  ]);
+  let recentProgress: any[] = [];
+  let bookmarks: any[] = [];
+  try {
+    await dbConnect();
+    [recentProgress, bookmarks] = await Promise.all([
+      ReadingProgress.find({ userId: session.user.id, percentage: { $gt: 0 } })
+        .sort({ lastReadAt: -1 })
+        .limit(10)
+        .populate("bookId", "title author coverImage totalChapters")
+        .lean(),
+      Bookmark.find({ userId: session.user.id })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("bookId", "title")
+        .lean(),
+    ]);
+  } catch (err) {
+    console.error("[DashboardPage] data fetch failed:", err);
+    throw err;
+  }
 
   const totalProgress = recentProgress.reduce((sum, p) => sum + (p.percentage || 0), 0);
   const avgProgress = recentProgress.length > 0 ? Math.round(totalProgress / recentProgress.length) : 0;
